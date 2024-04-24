@@ -67,30 +67,30 @@ import { settlementActions } from 'store/redux-saga/reducer/settlement/settlemen
 
 
   // 조회 클릭
-  // const searchFinancialStatementList = async (params: any) => {
-  //   console.log('조회 클릭')
-  //   let callResult = 'SEARCH'
-  //   await accountApi.get('/settlement/financialposition', {
-  //     params: {accountPeriodNo: accountPeriodNo, callResult: callResult}
-  //   })
-  //     .then(res => {
-  //       console.log('재무상태표', res.data.financialPositionList.financialPosition);
-  //       setFinancialStatementList(res.data.financialPositionList.financialPosition);
-  //     })
-  //     .catch(e => console.error(e));
-  // };
+  const searchFinancialStatementList = async (params: any) => {
+    console.log('조회 클릭')
+    let callResult = 'SEARCH'
+    await accountApi.get('/settlement/financialposition', {
+      params: {accountPeriodNo: accountPeriodNo, callResult: callResult}
+    })
+      .then(res => {
+        console.log('재무상태표', res.data.financialPositionList.financialPosition);
+        setFinancialStatementList(res.data.financialPositionList.financialPosition);
+      })
+      .catch(e => console.error(e));
+  };
 
   //
-  const searchFinancialStatementList = (params: any) => {
-    console.log('----- accountPeriodNo -----', accountPeriodNo);
-    let callResult = 'SEARCH'
-    const selectedData: any = { accountPeriodNo : params.accountPeriodNo, callResult: callResult }
-    console.log("----- selectedData -----", selectedData)
-    if(selectedData){
-      dispatch(settlementActions.FinancialPositionListRequest(selectedData))
-    }
+  // const searchFinancialStatementList = (params: any) => {
+  //   console.log('----- accountPeriodNo -----', accountPeriodNo);
+  //   let callResult = 'SEARCH'
+  //   const selectedData: any = { accountPeriodNo : params.accountPeriodNo, callResult: callResult }
+  //   console.log("----- selectedData -----", selectedData)
+  //   if(selectedData){
+  //     dispatch(settlementActions.FinancialPositionListRequest(selectedData))
+  //   }
 
-  }
+  // }
 
 
   return (
@@ -154,6 +154,9 @@ import { settlementActions } from 'store/redux-saga/reducer/settlement/settlemen
                   <Button
                     sx={{ ml: 1, flex: 1 }} variant="contained" color="secondary" size="large" onClick={searchFinancialStatementList}
                   >조회</Button>
+                  <Button variant="contained" sx={{ ml: 1, flex: 1 }} size="large" color="secondary" >
+                    출력
+                   </Button>
                 </Grid>
               </Grid>
             }

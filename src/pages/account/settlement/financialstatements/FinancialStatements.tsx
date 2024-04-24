@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Layout from 'layout';
 import { ReactElement } from 'react-markdown/lib/react-markdown';
 import Page from 'ui-component/Page';
@@ -9,10 +9,11 @@ import { gridSpacing } from 'store/constant';
 import { useTheme } from '@mui/material/styles';
 import SearchIcon from '@mui/icons-material/Search';
 import { DataGrid } from '@mui/x-data-grid';
-import accountApi from 'api/accountApi';
-import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/styles/ag-grid.css';
 import { yearColumns, IncomeStatementGroupColumns, IncomeStatementColumns } from './FinancialStatementsColumns';
+import { useDispatch, useSelector } from 'react-redux';
+import { getSelectDate, getTrialDate, requestSearchDate } from 'store/slices/detailTrial';
+import { settlementActions } from 'store/redux-saga/reducer/settlement/settlementReducer';
 /**
  * 추가사항
   
@@ -21,53 +22,73 @@ import { yearColumns, IncomeStatementGroupColumns, IncomeStatementColumns } from
   const FinancialStatements = () => {
 
   const theme = useTheme();
+  const dispatch = useDispatch();
 
-  const [year, setYear] = useState('');
+  const [year, setYear] = useState();
   const [yearModal, setYearModal] = useState(false);
-  const [periodNoList, setPeriodNoList]: any = useState('');
-  const [accountPeriodNo, setAccountPeriodNo] = useState('');
+  const [periodNoList, setPeriodNoList]: any = useState();
+  const [accountPeriodNo, setAccountPeriodNo] = useState();
 
   const [financialStatementlist, setFinancialStatementList]: any = useState('');
 
   
 
   // 회계연도 검색 클릭
-  const onYearBtn = () => {
+  const accountPeriodList = () => {
     console.log('날짜 모달 ON');
     setYearModal(true);
-    getYearApi();
+    dispatch(requestSearchDate() as any);
   };
 
-  const getYearApi = async () => {
-    await accountApi.get('/settlement/periodNoList', {})
-      .then(res => {
-        setPeriodNoList(res.data.periodNoList)
-        console.log('[periodNoList]', res.data.periodNoList)
-      }).catch(e => console.error((e)));
-  }
+  // 회계기수데이터
+	const accountPeriodNoData = useSelector((state:any) => {
+		console.log("----- state -----", state);
+		return state.detailTrial.detailDate.periodNoList
+	})
+
 
   // 날짜모달 row 클릭시 발생 이벤트
   const clickYearData = (e: any) => {
-    const yearset = e.row.periodStartDate.substring(0, 4);
     console.log('[clickYearData]', e.row);
     setYearModal(false);
-    setYear(yearset);
+    console.log('----- e.row.fiscalYear -----', e.row.fiscalYear);
+    setYear(e.row.fiscalYear);
+    console.log('----- year -----', year);
     setAccountPeriodNo(e.row.accountPeriodNo);
   }
 
+  useEffect(()=>{
+    searchFinancialStatementList({ accountPeriodNo: accountPeriodNo });
+    console.log("----- accountPeriodNo -----", accountPeriodNo)
+  }, [accountPeriodNo])
+
+
   // 조회 클릭
-  const searchList = async (params: any) => {
-    console.log('조회 클릭')
+  // const searchFinancialStatementList = async (params: any) => {
+  //   console.log('조회 클릭')
+  //   let callResult = 'SEARCH'
+  //   await accountApi.get('/settlement/financialposition', {
+  //     params: {accountPeriodNo: accountPeriodNo, callResult: callResult}
+  //   })
+  //     .then(res => {
+  //       console.log('재무상태표', res.data.financialPositionList.financialPosition);
+  //       setFinancialStatementList(res.data.financialPositionList.financialPosition);
+  //     })
+  //     .catch(e => console.error(e));
+  // };
+
+  // 조회 클릭
+  const searchFinancialStatementList = (params: any) => {
+    console.log('----- accountPeriodNo -----', accountPeriodNo);
     let callResult = 'SEARCH'
-    await accountApi.get('/settlement/financialposition', {
-      params: {accountPeriodNo: accountPeriodNo, callResult: callResult}
-    })
-      .then(res => {
-        console.log('재무상태표', res.data.financialPositionList.financialPosition);
-        setFinancialStatementList(res.data.financialPositionList.financialPosition);
-      })
-      .catch(e => console.error(e));
-  };
+    const selectedData: any = { accountPeriodNo : params.accountPeriodNo, callResult: callResult }
+    console.log("----- selectedData -----", selectedData)
+    if(selectedData){
+      dispatch(settlementActions.FinancialPositionListRequest(selectedData))
+    }
+
+  }
+
 
   return (
     <Page title="재무상태표">
@@ -94,7 +115,7 @@ import { yearColumns, IncomeStatementGroupColumns, IncomeStatementColumns } from
                       inputProps={{ 'aria-label': 'search google maps' }}
                       value={year}
                     />
-                    <IconButton type="button" sx={{ p: '10px' }} aria-label="search" onClick={onYearBtn}>
+                    <IconButton type="button" sx={{ p: '10px' }} aria-label="search" onClick={accountPeriodList}>
                       <SearchIcon />
                     </IconButton>
                     <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
@@ -115,22 +136,24 @@ import { yearColumns, IncomeStatementGroupColumns, IncomeStatementColumns } from
                         }}
                       >
                         <DataGrid
-                          rows={periodNoList}
+                          rows={accountPeriodNoData}
                           columns={yearColumns}
                           pageSize={5}
                           rowsPerPageOptions={[5]}
                           getRowId={(row) => row.accountPeriodNo}
                           onRowClick={clickYearData} //년도의 행 선택했을때 실행
                         />
-                        <Button onClick={() => setYearModal(false)}>닫기</Button>
                       </Box>
                     </div>
                   </Modal>
                 </Grid>
                 <Grid item>
                   <Button
-                    sx={{ ml: 1, flex: 1 }} variant="contained" color="secondary" size="large" onClick={searchList}
+                    sx={{ ml: 1, flex: 1 }} variant="contained" color="secondary" size="large" onClick={searchFinancialStatementList}
                   >조회</Button>
+                  <Button variant="contained" sx={{ ml: 1, flex: 1 }} size="large" color="secondary" >
+                    출력
+                   </Button>
                 </Grid>
               </Grid>
             }

@@ -11,12 +11,21 @@ import { useState, useEffect } from 'react';
 import MainCard from 'ui-component/cards/MainCard';
 import { gridSpacing } from 'store/constant';
 import moment from 'moment/moment';
-import accountApi from 'api/accountApi';
+import { ColumnProps } from 'pages/account/settlement/totaltrialbalance/types/types';
 
-const YearColumns = [
-    { headerName: '시작날짜', field: 'periodStartDate', textAlign: 'center'},
-    { headerName: '끝난날짜', field: 'periodEndDate' }
-];
+  // 회계기수 모달 세팅
+  export const accountPeriodListColumns: ColumnProps[] = [
+	{
+	  headerName: '회계 년도',
+	  field: 'fiscalYear'
+	},
+	{
+	  headerName: '회계 시작일',
+	  field: 'periodStartDate',
+	  width: 150
+	},
+	{ headerName: '회계 종료일', field: 'periodEndDate', width: 150 }
+  ];
 
 const YearDialog = ({ open, onClose, setYear, setPeriodno }: any) => {
     const theme = useTheme();
@@ -80,7 +89,7 @@ const YearDialog = ({ open, onClose, setYear, setPeriodno }: any) => {
                         >
                             <DataGrid
                                 rows={yearData}
-                                columns={YearColumns}
+                                columns={accountPeriodListColumns}
                                 getRowId={(row) => row.accountPeriodNo}
                                 onRowClick={onRowClicked}
                             />

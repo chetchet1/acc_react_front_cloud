@@ -3,7 +3,7 @@
 
 import settlementApi from './interceptor';
 
-const PERIOD_NO_LIST_DATA_URL = '/settlement/periodNoList'; // 회계기수(날짜) 가져오는 거 (account어쩌구에서 수정함 -> 백단이 저렇게 돼있음)
+const PERIOD_NO_LIST_DATA_URL = '/settlement/periodNoList'; // 회계기수(날짜) 가져오는 거 (account어쩌구에서 수정함)
 const ToTal_Trial_Balance_LIST_URL='/settlement/searchTotalTrialBalance' // 선택한 회계기수에 해당하는 데이터 가져오는 거
 const Financial_Position_LIST_URL= '/settlement/financialposition'
 
@@ -19,9 +19,10 @@ export const getAccountPeriodNo = async() => {
 
 export const getTotalTrialBalance = async(params:any) => {
     try{
+        console.warn("----- api 요청 중 -----")
         return await settlementApi.get(ToTal_Trial_Balance_LIST_URL, {
             params:{
-                accountPeriodNo: params.accountPeriodNo,
+                accountPeriodNo: params.periodNoList,
             }
         });
     }catch(error:any){
@@ -33,7 +34,7 @@ export const getFinancialPosition = async(params:any) => {
     try{
         return await settlementApi.get(Financial_Position_LIST_URL), {
             params:{
-                accountPeriodNo: params.accountPeriodNo,
+                accountPeriodNo: params.periodNoList,
             }
         }
     }catch(error:any){

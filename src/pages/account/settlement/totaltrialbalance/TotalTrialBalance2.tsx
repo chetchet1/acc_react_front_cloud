@@ -11,76 +11,56 @@ import { useTheme } from '@mui/material/styles';
 import { useSelector, useDispatch } from 'react-redux';
 // import AutoComplete from 'pages/forms/components/autocomplete';
 import Page from 'ui-component/Page';
-import { ColumnProps } from './types/types';
 import { dispatch } from 'store';
 import { getSelectDate, getTrialDate, requestSearchDate } from 'store/slices/detailTrial';
 import Layout from 'layout';
 import { settlementActions } from 'store/redux-saga/reducer/settlement/settlementReducer';
 import { getTotalTrialBalance } from 'store/redux-saga/api/settlement';
-import html2pdf from 'html2pdf.js';
+import { totalTrialBalanceColumns, accountPeriodListColumns } from './TotalTrialBalanceColumns'
 
 const TotalTrialBalance2 = () => {
    
 	const [yearOpen, yearSetOpen] = useState(false);
 	const callResult = "SEARCH";
 	const [year, setYear] = useState('');
-	let html2pdf: any;
-	const contentRef = useRef(null);
-
 
 	const theme=useTheme();
 	const dispatch = useDispatch();
 
-	// 회계기수데이터
+	// (78) 결산 전 조회 버튼
+	const accountPeriodList = () => {
+		yearSetOpen(true); //년도 모달을 띄움
+		dispatch(settlementActions.AccountPeriodNoRequest());
+	  };
+
+	// (78) 회계기수데이터
 	const accountPeriodNoData = useSelector((state:any) => {
 		console.log("----- state -----", state);
 		return state.settlement.periodNoList
 	})
 
-	// 회계기수 데이터 받은 후 모달
-	const searchYearData = (e: any) => {
+	// (78) 회계기수 데이터 받은 후 모달
+	const searchYearData = (e:any) => {
 		yearSetOpen(false); // 모달 종료
 
-		console.log("----- e.row.accountPeriodNo -----", e.row.periodNoList)
-		const selectedData:any = { periodNoList : e.row.periodNoList }
+		console.log("----- e.row.accountPeriodNo -----", e.row.accountPeriodNo)
+		const selectedData:any = { periodNoList : e.row.accountPeriodNo }
 
 		console.log("----- selectedData -----",selectedData);
 		console.log("----- settlementActions.TotalTrialBalanceListRequest -----",settlementActions.TotalTrialBalanceListRequest(selectedData));
-		if(e.row.periodNoList !== undefined){
+		if(selectedData !== undefined){
 			dispatch(settlementActions.TotalTrialBalanceListRequest(selectedData))
 	}
 }
 	  
-	// PDF 다운로드
-	const options = {
-		filename: 'my-document.pdf',
-		margin: 1,
-		image: { type: 'jpeg', quality: 0.98 },
-		html2canvas: { scale: 2 },
-		jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
-	};
 
-	const pdfDownload = () => {
-		const content = contentRef.current;
-		html2pdf().set(options).from(content).save();
-	};
-
-
-
-  // 결산 전 조회 버튼
-  const accountPeriodList = () => {
-    yearSetOpen(true); //년도 모달을 띄움
-    dispatch(settlementActions.AccountPeriodNoRequest());
-  };
-
-  // 합계잔액시산표 목록
+  // (78) 합계잔액시산표 목록
   const totalTrialBalanceListData = useSelector((state:any) => state.settlement.totalTrialBalanceList);
   console.log("----- totalTrialBalanceListData -----", totalTrialBalanceListData);
   const totalTrialBalanceList = totalTrialBalanceListData?.searchTotalTrialBalance || [];
   console.log("----- totalTrialBalance -----", totalTrialBalanceList);
-  type TotalTrialBalanceColumnType = GridColDef<any, any>; // <any, any> ? <string, string> ??
 
-  // 
+
 
 
   const excuteStatement = () => {
@@ -91,28 +71,7 @@ const TotalTrialBalance2 = () => {
     // 결산 취소 함수
   };
 
-  // 회계기수 모달 세팅
-  const accountPeriodListColumns: ColumnProps[] = [
-	{
-	  headerName: '회계 년도',
-	  field: 'fiscalYear'
-	},
-	{
-	  headerName: '회계 시작일',
-	  field: 'periodStartDate',
-	  width: 150
-	},
-	{ headerName: '회계 종료일', field: 'periodEndDate', width: 150 }
-  ];
 
-  // 합계잔액시산표 그리드 세팅
-  const totalTrialBalanceColumns: TotalTrialBalanceColumnType[] = [
-	{ width: 250, headerName: '계정 과목', field: 'accountName', align: 'center', headerAlign: 'center' },
-	{ width: 250, headerName: '차변 합계', field: 'debitsSum', valueFormatter: (params: any)=> Math.floor(params.value).toString().replace(/(\\d)(?=(\\d{3})+(?!\\d))/g, "$1,")+"원", align: 'center', headerAlign: 'center' },
-	{ width: 250, headerName: '차변 잔액', field: 'debitsSumBalance', valueFormatter: (params: any)=>  Math.floor(params.value).toString().replace(/(\\d)(?=(\\d{3})+(?!\\d))/g, "$1,")+"원", align: 'center', headerAlign: 'center' },
-	{ width: 250, headerName: '대변 합계', field: 'creditsSum', valueFormatter: (params: any)=> Math.floor(params.value).toString().replace(/(\\d)(?=(\\d{3})+(?!\\d))/g, "$1,")+"원", align: 'center', headerAlign: 'center' },
-	{ width: 250, headerName: '대변 잔액', field: 'creditsSumBalance', valueFormatter: (params: any)=>Math.floor(params.value).toString().replace(/(\\d)(?=(\\d{3})+(?!\\d))/g, "$1,")+"원", align: 'center', headerAlign: 'center' },
-]
 
   return (
     <Grid container spacing={gridSpacing}> 
@@ -135,7 +94,7 @@ const TotalTrialBalance2 = () => {
 					</Box>
 				</div>
 			</Dialog>
-			<Button variant="contained" color="secondary" onClick={pdfDownload}>
+			<Button variant="contained" color="secondary">
 				출력
 			</Button>
 		</div>
