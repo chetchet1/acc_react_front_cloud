@@ -93,13 +93,13 @@ const account: NavItemType = {
           id: 'totalTrialBalancePage',
           title: <FormattedMessage id="totalTrialBalancePage" />,
           type: 'item',
-          url: '/account/settlement/totaltrialbalance/TotalTrialBalance1'
+          url: '/account/settlement/totaltrialbalance/TotalTrialBalance2'
         },
         {
           id: 'financialPositionPage',
           title: <FormattedMessage id="financialPositionPage" />,
           type: 'item',
-          url: '/account/settlement/financialstatements/FinancialStatements1'
+          url: '/account/settlement/financialstatements/FinancialStatements'
         },
         {
           id: 'incomeStatementPage',

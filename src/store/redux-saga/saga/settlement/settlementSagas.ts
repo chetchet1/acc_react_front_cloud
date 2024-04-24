@@ -37,6 +37,9 @@ function* financialStatementlist(action:any){
     const { payload } = action;
     try{
         const response:AxiosResponse = yield call(getFinancialPosition, payload);
+        const periodNo = payload.accountPeriodNo;
+        console.log("periodNo 타입");
+        console.log(typeof periodNo);
         // response 는 call 효과가 반환하는 값을 저장하기 위한 변수로, AxiosResponse는 Axios 라이브러리의 응답 객체를 나타내는 타입임
         console.warn('조회 response', response);
 

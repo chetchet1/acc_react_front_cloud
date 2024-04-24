@@ -25,10 +25,9 @@ import { settlementActions } from 'store/redux-saga/reducer/settlement/settlemen
   const dispatch = useDispatch();
 
   const [year, setYear] = useState();
-  const [yearModal, setYearModal] = useState(false);
-  const [periodNoList, setPeriodNoList]: any = useState();
-  const [accountPeriodNo, setAccountPeriodNo] = useState();
 
+  const [periodListModal, setPeriodListModal] = useState(false);
+  const [accountPeriodNo, setAccountPeriodNo] = useState();
   const [financialStatementlist, setFinancialStatementList]: any = useState('');
 
   
@@ -36,31 +35,26 @@ import { settlementActions } from 'store/redux-saga/reducer/settlement/settlemen
   // 회계연도 검색 클릭
   const accountPeriodList = () => {
     console.log('날짜 모달 ON');
-    setYearModal(true);
-    dispatch(requestSearchDate() as any);
-  };
+    setPeriodListModal(true);
+    dispatch(settlementActions.AccountPeriodNoRequest());
+    };
 
   // 회계기수데이터
 	const accountPeriodNoData = useSelector((state:any) => {
 		console.log("----- state -----", state);
-		return state.detailTrial.detailDate.periodNoList
+		return state.settlement.periodNoList
 	})
 
 
   // 날짜모달 row 클릭시 발생 이벤트
   const clickYearData = (e: any) => {
     console.log('[clickYearData]', e.row);
-    setYearModal(false);
+    setPeriodListModal(false);
     console.log('----- e.row.fiscalYear -----', e.row.fiscalYear);
     setYear(e.row.fiscalYear);
-    console.log('----- year -----', year);
     setAccountPeriodNo(e.row.accountPeriodNo);
+    console.log('----- accountPeriodNo -----', accountPeriodNo);
   }
-
-  useEffect(()=>{
-    searchFinancialStatementList({ accountPeriodNo: accountPeriodNo });
-    console.log("----- accountPeriodNo -----", accountPeriodNo)
-  }, [accountPeriodNo])
 
 
   // 조회 클릭
@@ -78,12 +72,12 @@ import { settlementActions } from 'store/redux-saga/reducer/settlement/settlemen
   // };
 
   // 조회 클릭
-  const searchFinancialStatementList = (params: any) => {
-    console.log('----- accountPeriodNo -----', accountPeriodNo);
+  const searchFinancialStatementList = () => {
+    console.log('----- SEARCH : accountPeriodNo -----', accountPeriodNo);
     let callResult = 'SEARCH'
-    const selectedData: any = { accountPeriodNo : params.accountPeriodNo, callResult: callResult }
+    const selectedData: any = { accountPeriodNo : accountPeriodNo, callResult: callResult }
     console.log("----- selectedData -----", selectedData)
-    if(selectedData){
+    if(selectedData !== undefined){
       dispatch(settlementActions.FinancialPositionListRequest(selectedData))
     }
 
@@ -120,7 +114,7 @@ import { settlementActions } from 'store/redux-saga/reducer/settlement/settlemen
                     </IconButton>
                     <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
                   </Paper>
-                  <Modal open={yearModal} >
+                  <Modal open={periodListModal} >
                     <div
                       style={{
                         height: 400,

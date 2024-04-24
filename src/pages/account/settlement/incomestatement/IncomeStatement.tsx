@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useSelector, useDispatch } from 'react-redux';
 import Layout from 'layout';
 import { ReactElement } from 'react-markdown/lib/react-markdown';
 import Page from 'ui-component/Page';
@@ -9,6 +10,8 @@ import { useTheme } from '@mui/material/styles';
 import SearchIcon from '@mui/icons-material/Search';
 import { DataGrid } from '@mui/x-data-grid';
 import accountApi from 'api/accountApi';
+import { yearColumns, IncomeStatementGroupColumns, IncomeStatementColumns } from './IncomeStatementColumns'
+import { settlementActions } from 'store/redux-saga/reducer/settlement/settlementReducer';
 
 /**
  * 추가사항
@@ -20,101 +23,34 @@ import accountApi from 'api/accountApi';
 const IncomeStatement = () => {
 
   const theme = useTheme();
+  const dispatch = useDispatch();
 
   const [year, setYear] = useState('');
-  const [yearModal, setYearModal] = useState(false);
+	const [periodListModal, setPeriodListModal] = useState(false);
   const [periodNoList, setPeriodNoList]: any = useState('');
   const [accountPeriodNo, setAccountPeriodNo] = useState('');
 
   const [list, setList]: any = useState('');
 
-  // 날짜 모달 컬럼
-  const yearColumns = [
-    {
-      headerName: '회계 기수',
-      field: 'accountPeriodNo',
-      width: 250
-    },
-    {
-      headerName: '회계 시작일',
-      field: 'periodStartDate',
-      width: 250
-    },
-    { headerName: '회계 종료일', field: 'periodEndDate', width: 250 }
-  ];
 
-  // 부모 손익 칼럼
-  const IncomeStatementGroupColumns = [
-    {
-      headerName: " ", groupId: 'account', width: 100,
-      children: [{ field: "accountName" }],
-    },
-    {
-      headerName: '당기', groupId: 'thisYear',
-      children: [{ field: 'income', }, { field: 'incomeSummary', }]
-    },
-    {
-      headerName: '전기', groupId: 'lastYear',
-      children: [{ field: 'earlyIncome' }, { field: 'earlyIncomeSummary' }]
-    }
-  ];
+  // 회계기수 검색
+  const accountPeriodList = () => {
+		setPeriodListModal(true); //년도 모달을 띄움
+		dispatch(settlementActions.AccountPeriodNoRequest());
+	  };
 
-  // 자식 손익 컬럼
-  const IncomeStatementColumns: any = [
-    {
-      headerName: '과목', field: 'accountName',
-      width: 300
-    },
-    {
-      headerName: '금액',
-      field: 'income',
-      colId: '당기',
-      width: 200,
-      // valueFormatter: ' Math.floor(value).toString().replace(/(\\d)(?=(\\d{3})+(?!\\d))/g, "$1,")+" 원"'
-    },
-    {
-      headerName: '잔액',
-      field: 'incomeSummary',
-      colId: '당기',
-      width: 200,
-      // valueFormatter: ' Math.floor(value).toString().replace(/(\\d)(?=(\\d{3})+(?!\\d))/g, "$1,")+" 원"'
-    },
-    {
-      headerName: '금액',
-      field: 'earlyIncome',
-      colId: '전기',
-      width: 200,
-      // valueFormatter: ' Math.floor(value).toString().replace(/(\\d)(?=(\\d{3})+(?!\\d))/g, "$1,")+" 원"'
-    },
-    {
-      headerName: '잔액',
-      field: 'earlyIncomeSummary',
-      colId: '전기',
-      width: 200,
-      // valueFormatter: ' Math.floor(value).toString().replace(/(\\d)(?=(\\d{3})+(?!\\d))/g, "$1,")+" 원"'
-    }
-  ];
+  // 회계기수 데이터
+  const accountPeriodNoData = useSelector((state:any) => {
+		console.log("----- state -----", state);
+		return state.settlement.periodNoList
+	})
 
-  // 회계연도 검색 클릭
-  const onYearBtn = () => {
-    console.log('날짜 모달 ON');
-    setYearModal(true);
-    getYearApi();
-  };
-
-  const getYearApi = async () => {
-    await accountApi.get('/settlement/periodNoList', {})
-      .then(res => {
-        setPeriodNoList(res.data.periodNoList)
-        console.log('[periodNoList]', res.data.periodNoList)
-      }).catch(e => console.error((e)));
-  }
 
   // 날짜모달 row 클릭시 발생 이벤트
   const clickYearData = (e: any) => {
     const yearset = e.row.periodStartDate.substring(0, 4);
     console.log('[clickYearData]', e.row);
-    setYearModal(false);
+    setPeriodListModal(false);
     setYear(yearset);
     setAccountPeriodNo(e.row.accountPeriodNo);
   }
@@ -158,12 +94,12 @@ const IncomeStatement = () => {
                       inputProps={{ 'aria-label': 'search google maps' }}
                       value={year}
                     />
-                    <IconButton type="button" sx={{ p: '10px' }} aria-label="search" onClick={onYearBtn}>
+                    <IconButton type="button" sx={{ p: '10px' }} aria-label="search" onClick={accountPeriodList}>
                       <SearchIcon />
                     </IconButton>
                     <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
                   </Paper>
-                  <Modal open={yearModal} >
+                  <Modal open={periodListModal} >
                     <div
                       style={{
                         height: 400,
@@ -179,14 +115,14 @@ const IncomeStatement = () => {
                         }}
                       >
                         <DataGrid
-                          rows={periodNoList}
+                          rows={accountPeriodNoData}
                           columns={yearColumns}
                           pageSize={5}
                           rowsPerPageOptions={[5]}
                           getRowId={(row) => row.accountPeriodNo}
                           onRowClick={clickYearData} //년도의 행 선택했을때 실행
                         />
-                        <Button onClick={() => setYearModal(false)}>닫기</Button>
+                        <Button onClick={() => setPeriodListModal(false)}>닫기</Button>
                       </Box>
                     </div>
                   </Modal>

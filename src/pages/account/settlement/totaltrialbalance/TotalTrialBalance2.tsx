@@ -20,16 +20,15 @@ import { totalTrialBalanceColumns, accountPeriodListColumns } from './TotalTrial
 
 const TotalTrialBalance2 = () => {
    
-	const [yearOpen, yearSetOpen] = useState(false);
+	const [periodListModal, setPeriodListModal] = useState(false);
 	const callResult = "SEARCH";
-	const [year, setYear] = useState('');
 
 	const theme=useTheme();
 	const dispatch = useDispatch();
 
 	// (78) 결산 전 조회 버튼
 	const accountPeriodList = () => {
-		yearSetOpen(true); //년도 모달을 띄움
+		setPeriodListModal(true); //년도 모달을 띄움
 		dispatch(settlementActions.AccountPeriodNoRequest());
 	  };
 
@@ -40,8 +39,8 @@ const TotalTrialBalance2 = () => {
 	})
 
 	// (78) 회계기수 데이터 받은 후 모달
-	const searchYearData = (e:any) => {
-		yearSetOpen(false); // 모달 종료
+	const searchPeriodListData = (e:any) => {
+		setPeriodListModal(false); // 모달 종료
 
 		console.log("----- e.row.accountPeriodNo -----", e.row.accountPeriodNo)
 		const selectedData:any = { periodNoList : e.row.accountPeriodNo }
@@ -80,7 +79,7 @@ const TotalTrialBalance2 = () => {
 			<Button onClick={accountPeriodList} variant="contained" color="secondary">
 				결산 전 조회
 			</Button>
-			<Dialog open={yearOpen} fullWidth={true} maxWidth={'xs'} sx={{ textAlign: 'center' }}>
+			<Dialog open={periodListModal} fullWidth={true} maxWidth={'xs'} sx={{ textAlign: 'center' }}>
 				<div style={{ height: 400, width: '100%'}}>
 					<Box sx={{ height: 400, width: '100%', background: 'white' }}>
 						<DataGrid
@@ -89,7 +88,7 @@ const TotalTrialBalance2 = () => {
 							pageSize={5}
 							//rowsPerPageOptions={{5}}
 							getRowId={(row) => row.accountPeriodNo}
-							onRowClick={searchYearData}
+							onRowClick={searchPeriodListData}
 						/>
 					</Box>
 				</div>
@@ -133,7 +132,7 @@ const TotalTrialBalance2 = () => {
 			<Button onClick={accountPeriodList} variant="contained" color="secondary">
 				결산
 			</Button>
-			<Dialog open={yearOpen} fullWidth={true} maxWidth={'xs'} sx={{ textAlign: 'center' }}>
+			<Dialog open={periodListModal} fullWidth={true} maxWidth={'xs'} sx={{ textAlign: 'center' }}>
 				<div style={{ height: 400, width: '100%'}}>
 					<Box sx={{ height: 400, width: '100%', background: 'white' }}>
 						<DataGrid
@@ -142,7 +141,7 @@ const TotalTrialBalance2 = () => {
 							pageSize={5}
 							//rowsPerPageOptions={{5}}
 							getRowId={(row) => row.accountPeriodNo}
-							onRowClick={searchYearData}
+							onRowClick={searchPeriodListData}
 						/>
 					</Box>
 				</div>

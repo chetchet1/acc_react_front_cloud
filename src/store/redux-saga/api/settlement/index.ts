@@ -20,6 +20,7 @@ export const getAccountPeriodNo = async() => {
 export const getTotalTrialBalance = async(params:any) => {
     try{
         console.warn("----- api 요청 중 -----")
+        console.log("----- params -----", params)
         return await settlementApi.get(ToTal_Trial_Balance_LIST_URL, {
             params:{
                 accountPeriodNo: params.periodNoList,
@@ -32,11 +33,15 @@ export const getTotalTrialBalance = async(params:any) => {
 
 export const getFinancialPosition = async(params:any) => {
     try{
-        return await settlementApi.get(Financial_Position_LIST_URL), {
+        console.log("----- parms -----", params);
+        console.log("----- params.accountPeriodNo -----", params.accountPeriodNo);
+        console.log("----- parms.callResult -----", params.callResult );
+        return await settlementApi.get(Financial_Position_LIST_URL, {
             params:{
-                accountPeriodNo: params.periodNoList,
+                accountPeriodNo: params.accountPeriodNo,
+                callResult: params.callResult
             }
-        }
+        });
     }catch(error:any){
         console.log(error);
     }
