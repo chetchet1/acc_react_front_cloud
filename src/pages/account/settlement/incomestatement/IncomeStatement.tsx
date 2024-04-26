@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { useSelector, useDispatch } from 'react-redux';
 import Layout from 'layout';
 import { ReactElement } from 'react-markdown/lib/react-markdown';
@@ -12,6 +12,7 @@ import { DataGrid } from '@mui/x-data-grid';
 import accountApi from 'api/accountApi';
 import { yearColumns, IncomeStatementGroupColumns, IncomeStatementColumns } from './IncomeStatementColumns'
 import { settlementActions } from 'store/redux-saga/reducer/settlement/settlementReducer';
+import { useReactToPrint } from 'react-to-print';
 
 /**
  * 추가사항
@@ -31,6 +32,7 @@ const IncomeStatement = () => {
   const [accountPeriodNo, setAccountPeriodNo] = useState('');
 
   const [list, setList]: any = useState('');
+  const componentRef = useRef<HTMLDivElement>(null);
 
 
   // 회계기수 검색
@@ -68,6 +70,14 @@ const IncomeStatement = () => {
       })
       .catch(e => console.error(e));
   };
+
+    // pdf 다운로드
+    const pdfDownload = useReactToPrint({
+      content: () => componentRef.current,
+      pageStyle: "@Page { size: 210mm 297mm }",
+      documentTitle: ' FinancialStatement '
+    })
+  
 
   return (
     <Page title="손익계산서">
@@ -131,11 +141,14 @@ const IncomeStatement = () => {
                   <Button
                     sx={{ ml: 1, flex: 1 }} variant="contained" color="secondary" size="large" onClick={searchList}
                   >조회</Button>
+                  <Button variant="contained" sx={{ ml: 1, flex: 1 }} size="large" color="secondary" onClick={pdfDownload}>
+                    출력
+                   </Button>
                 </Grid>
               </Grid>
             }
           />
-          <MainCard>
+          <MainCard ref={componentRef}>
             <Box
               sx={{
                 height: 700,

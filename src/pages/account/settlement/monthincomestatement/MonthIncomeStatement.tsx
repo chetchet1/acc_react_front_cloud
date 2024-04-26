@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import Layout from 'layout';
 import { ReactElement } from 'react-markdown/lib/react-markdown';
 import Page from 'ui-component/Page';
@@ -9,6 +9,7 @@ import { useTheme } from '@mui/material/styles';
 import SearchIcon from '@mui/icons-material/Search';
 import { DataGrid } from '@mui/x-data-grid';
 import accountApi from 'api/accountApi';
+import { useReactToPrint } from 'react-to-print';
 
 
 const MonthIncomeStatement = () => {
@@ -19,6 +20,7 @@ const MonthIncomeStatement = () => {
   const [yearModal, setYearModal] = useState(false);
   const [periodNoList, setPeriodNoList]: any = useState('');
   const [monthIncomeStatementlist, setMonthIncomeStatementlist]: any = useState('');
+  const componentRef = useRef<HTMLDivElement>(null);
 
   // 날짜 모달 컬럼
   const yearColumns = [
@@ -165,6 +167,13 @@ const MonthIncomeStatement = () => {
       .catch(e => console.error(e));
   };
 
+  // pdf 다운로드
+  const pdfDownload = useReactToPrint({
+    content: () => componentRef.current,
+    pageStyle: "@Page { size: A4 landscape; margin:10; }",
+    documentTitle: ' 월별손익계산서 '
+  })
+
     return (
       <Page title="월별손익계산서">
         <Grid container spacing={gridSpacing}>
@@ -225,14 +234,17 @@ const MonthIncomeStatement = () => {
                   </Grid>
                   <Grid item>
                     <Button
-                      sx={{ ml: 1, flex: 1 }} variant="contained" color="secondary" size="large" onClick={searchList}
+                      sx={{ ml: 1, flex: 1 }} variant="contained" color="secondary" sx={{ ml: 1, flex: 1 }} size="large" onClick={searchList}
                     >조회
                     </Button>
+                    <Button variant="contained" sx={{ ml: 1, flex: 1 }} size="large" color="secondary" onClick={pdfDownload}>
+                    출력
+                   </Button>
                   </Grid>
                 </Grid>
               }
             />
-            <MainCard>
+            <MainCard ref={componentRef}>
               <Box
                 sx={{
                   height: 700,

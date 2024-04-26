@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Layout from 'layout';
 import { ReactElement } from 'react-markdown/lib/react-markdown';
 import Page from 'ui-component/Page';
@@ -14,6 +14,7 @@ import { yearColumns, IncomeStatementGroupColumns, IncomeStatementColumns } from
 import { useDispatch, useSelector } from 'react-redux';
 import { getSelectDate, getTrialDate, requestSearchDate } from 'store/slices/detailTrial';
 import { settlementActions } from 'store/redux-saga/reducer/settlement/settlementReducer';
+import { useReactToPrint } from 'react-to-print';
 /**
  * 추가사항
   
@@ -29,6 +30,7 @@ import { settlementActions } from 'store/redux-saga/reducer/settlement/settlemen
   const [periodListModal, setPeriodListModal] = useState(false);
   const [accountPeriodNo, setAccountPeriodNo] = useState();
   const [financialStatementlist, setFinancialStatementList]: any = useState('');
+  const componentRef = useRef<HTMLDivElement>(null);
 
   
 
@@ -82,6 +84,13 @@ import { settlementActions } from 'store/redux-saga/reducer/settlement/settlemen
     }
 
   }
+
+  // pdf 다운로드
+  const pdfDownload = useReactToPrint({
+    content: () => componentRef.current,
+    pageStyle: "@Page { size: 210mm 297mm }",
+    documentTitle: ' 재무상태표 '
+  })
 
 
   return (
@@ -145,7 +154,7 @@ import { settlementActions } from 'store/redux-saga/reducer/settlement/settlemen
                   <Button
                     sx={{ ml: 1, flex: 1 }} variant="contained" color="secondary" size="large" onClick={searchFinancialStatementList}
                   >조회</Button>
-                  <Button variant="contained" sx={{ ml: 1, flex: 1 }} size="large" color="secondary" >
+                  <Button variant="contained" sx={{ ml: 1, flex: 1 }} size="large" color="secondary" onClick={pdfDownload}>
                     출력
                    </Button>
                 </Grid>

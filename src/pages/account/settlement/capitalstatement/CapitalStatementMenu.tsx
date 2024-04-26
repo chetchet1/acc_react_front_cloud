@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Button, Grid, Modal, Typography, Table, TableBody, TableCell, TableContainer, TableHead
     ,TableRow } from "@mui/material";
 import { gridSpacing } from 'store/constant';
@@ -8,12 +8,14 @@ import { DataGrid } from "@mui/x-data-grid";
 import MainCard from 'ui-component/cards/MainCard';
 import { useTheme } from "@mui/material/styles";
 import axios from "axios";
+import { useReactToPrint } from "react-to-print";
 
 const CapitalStatementMenu = () => {
 
     const [list, setList] = useState<{accountPeriodNo: any;}[]>([]);
 
     const [open, setOpen] = useState(false);
+    const componentRef = useRef<HTMLDivElement>(null);
 
     // const [capitalStatementlist, setCapitalStatementlist]: any = useState('');
 
@@ -70,23 +72,7 @@ const CapitalStatementMenu = () => {
             console.log(capitalStatementlist);
         };
 
-    const columns:any = [
-        {
-            headerName: '회계 기수'
-            ,field: 'accountPeriodNo'
-            ,width: 80
-        },
-        {
-            headerName: '회계 시작일'
-            ,field: 'periodStartDate'
-            ,width: 150
-        },
-        { 
-            headerName: '회계 종료일'
-            ,field: 'periodEndDate'
-            ,width: 150 
-        }
-    ]
+    
 
     const  columnDefs:any = [
         {
@@ -137,6 +123,13 @@ const CapitalStatementMenu = () => {
         }
         ];
     
+        // pdf 다운로드
+    const pdfDownload = useReactToPrint({
+        content: () => componentRef.current,
+        pageStyle: "@Page { size: A4 landscape; margin:10; }",
+        documentTitle: ' FinancialStatement '
+      })
+
     return (
         <Page title="자본변동표">
         <Grid container spacing={gridSpacing}>
@@ -144,8 +137,11 @@ const CapitalStatementMenu = () => {
                 <div align="center">
                     <Typography variant="h3">[ 검색조건 ]</Typography>
                     <div>
-                        <Button onClick={periodListData} variant="contained" color="secondary">
+                        <Button onClick={periodListData}  sx={{ ml: 1, flex: 1 }} size="large" variant="contained" color="secondary">
                             회계 기수조회
+                        </Button>
+                        <Button variant="contained" sx={{ ml: 1, flex: 1 }} size="large" color="secondary" onClick={pdfDownload}>
+                            출력
                         </Button>
                         <Modal open={open}>
                             <div align="center">
@@ -173,7 +169,7 @@ const CapitalStatementMenu = () => {
                 </div>
             </Grid>
         </Grid>
-        <div>
+        <div ref={componentRef}>
                 <MainCard
                     content={false}
                     sx={{

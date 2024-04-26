@@ -5,11 +5,9 @@ import { Button, Grid, Modal, Typography, Table, TableBody, TableCell, TableCont
     , TableRow, Dialog, Box } from '@mui/material';
 import MainCard from 'ui-component/cards/MainCard';
 import { DataGrid, GridRowParams, GridColDef } from '@mui/x-data-grid';
-// import { Box } from '@mui/system';
 import { gridSpacing } from 'store/constant';
 import { useTheme } from '@mui/material/styles';
 import { useSelector, useDispatch } from 'react-redux';
-// import AutoComplete from 'pages/forms/components/autocomplete';
 import Page from 'ui-component/Page';
 import { dispatch } from 'store';
 import { getSelectDate, getTrialDate, requestSearchDate } from 'store/slices/detailTrial';
@@ -17,6 +15,7 @@ import Layout from 'layout';
 import { settlementActions } from 'store/redux-saga/reducer/settlement/settlementReducer';
 import { getTotalTrialBalance } from 'store/redux-saga/api/settlement';
 import { totalTrialBalanceColumns, accountPeriodListColumns } from './TotalTrialBalanceColumns'
+import { useReactToPrint } from 'react-to-print';
 
 const TotalTrialBalance2 = () => {
    
@@ -25,6 +24,7 @@ const TotalTrialBalance2 = () => {
 
 	const theme=useTheme();
 	const dispatch = useDispatch();
+	const componentRef = useRef<HTMLDivElement>(null);
 
 	// (78) 결산 전 조회 버튼
 	const accountPeriodList = () => {
@@ -51,6 +51,16 @@ const TotalTrialBalance2 = () => {
 			dispatch(settlementActions.TotalTrialBalanceListRequest(selectedData))
 	}
 }
+
+	// pdf 다운로드
+    const pdfDownload = useReactToPrint({
+      content: () => componentRef.current,
+      pageStyle: 
+	  	`@Page {  size: A4 landscape; margin:10; }
+		  .box { padding: 700px }
+		  .data-grid { padding : 700px }`,
+      documentTitle: ' 합계잔액시산표 '
+    })
 	  
 
   // (78) 합계잔액시산표 목록
@@ -76,7 +86,7 @@ const TotalTrialBalance2 = () => {
     <Grid container spacing={gridSpacing}> 
     <Grid item xs={12}>
 		<div>
-			<Button onClick={accountPeriodList} variant="contained" color="secondary">
+			<Button onClick={accountPeriodList} sx={{ ml: 1, flex: 1 }} variant="contained" color="secondary">
 				결산 전 조회
 			</Button>
 			<Dialog open={periodListModal} fullWidth={true} maxWidth={'xs'} sx={{ textAlign: 'center' }}>
@@ -93,9 +103,6 @@ const TotalTrialBalance2 = () => {
 					</Box>
 				</div>
 			</Dialog>
-			<Button variant="contained" color="secondary">
-				출력
-			</Button>
 		</div>
 		<div>
 		<Box
@@ -129,7 +136,7 @@ const TotalTrialBalance2 = () => {
         </Box>
 		</div>
 		<div>
-			<Button onClick={accountPeriodList} variant="contained" color="secondary">
+			<Button onClick={accountPeriodList} variant="contained" sx={{ ml: 1, flex: 1 }} color="secondary">
 				결산
 			</Button>
 			<Dialog open={periodListModal} fullWidth={true} maxWidth={'xs'} sx={{ textAlign: 'center' }}>
@@ -146,15 +153,15 @@ const TotalTrialBalance2 = () => {
 					</Box>
 				</div>
 			</Dialog>
-			<Button variant="contained" color="secondary">
+			<Button variant="contained" sx={{ ml: 1, flex: 1 }} color="secondary">
 				결산 취소
 			</Button>
-			<Button variant="contained" color="secondary">
-				출력
-			</Button>
+			<Button variant="contained" sx={{ ml: 1, flex: 1 }} color="secondary" onClick={pdfDownload}>
+                    출력
+            </Button>
 		</div>
-		<div>
-		<Box
+		<div ref={componentRef}>
+		<Box 
           sx={{
             height:'100%',
             width:'100%',
@@ -176,7 +183,7 @@ const TotalTrialBalance2 = () => {
             }
           }}
         >
-          <DataGrid
+          <DataGrid 
             rows={totalTrialBalanceList}
             columns={totalTrialBalanceColumns}
             getRowId={(row) => row.totalTrialBalance}
