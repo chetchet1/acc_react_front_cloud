@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Button, Grid, Modal, Typography, Table, TableBody, TableCell, TableContainer, TableHead
     ,TableRow } from "@mui/material";
 import { gridSpacing } from 'store/constant';
@@ -8,13 +8,16 @@ import { DataGrid } from "@mui/x-data-grid";
 import MainCard from 'ui-component/cards/MainCard';
 import { useTheme } from "@mui/material/styles";
 import axios from "axios";
+import { useReactToPrint } from "react-to-print";
+import { useDispatch, useSelector } from "react-redux";
 import { columns, columnDefs } from './CapitalStatementColumns'
+import { settlementActions } from "store/redux-saga/reducer/settlement/settlementReducer";
 
 const CapitalStatementMenu = () => {
 
-    const [list, setList] = useState<{accountPeriodNo: any;}[]>([]);
+    const [periodListModal, setPeriodListModal] = useState(false);
 
-    const [open, setOpen] = useState(false);
+    const componentRef = useRef<HTMLDivElement>(null);
 
     // const [capitalStatementlist, setCapitalStatementlist]: any = useState('');
 
@@ -31,38 +34,44 @@ const CapitalStatementMenu = () => {
     const theme:any = useTheme();
 
     const callResult = 'SEARCH';
-    // const dispatch = useDispatch();
+    const dispatch = useDispatch();
 
     
-    const periodListData = () => {
-        setOpen(true);
-        axios.get('http://localhost:9103/settlement/periodNoList')
-            .then(res => 
-                {
-                console.log(res.data);
-                setList(res.data.periodNoList);
-                console.log(res.data.periodNoList);
-                }
-            )
-        };
-
-    const searchData = (e:any) => {
-        setOpen(false);
+  // 회계연도 검색 클릭
+    const accountPeriodList = () => {
+        console.log('날짜 모달 ON');
+        setPeriodListModal(true);
+        dispatch(settlementActions.AccountPeriodNoRequest());
+    };
+    
+      // 회계기수데이터
+	const accountPeriodNoData = useSelector((state:any) => {
+		console.log("----- state -----", state);
+		return state.settlement.periodNoList
+	})
+    
+    // 자본변동표 조회
+    const searchData = (e: any) => {
+        setPeriodListModal(false);
         console.log(e);
-        axios.get('http://localhost:9103/settlement/capitalstatement'
-        ,{params:{accountPeriodNo: e.id, callResult: callResult}
-            }
-            )
-            .then((res) => {
-                console.log(res.data);
-                console.log(res.data.capitalList.capitalStatement);
-                setCapitalStatementlist(res.data.capitalList.capitalStatement);
-                    }
-                 )
-            console.log(capitalStatementlist);
-        };
+        axios.get(
+            'http://localhost:9103/settlement/capitalstatement' ,
+            {params:{accountPeriodNo: e.id, callResult: callResult}} 
+        ).then((res) => {
+            console.log(res.data);
+            console.log(res.data.capitalList.capitalstatement);
+            setCapitalStatementlist(res.data.capitalList.capitalstatement);
+        })
+        console.log(capitalStatementlist);
+    }
 
-    
+    // pdf 다운로드
+    const pdfDownload = useReactToPrint({
+        content: () => componentRef.current,
+        pageStyle: "@Page { size: A4 landscape; margin:10; }",
+        documentTitle: ' FinancialStatement '
+    })
+
     return (
         <Page title="자본변동표">
         <Grid container spacing={gridSpacing}>
@@ -70,10 +79,13 @@ const CapitalStatementMenu = () => {
                 <div align="center">
                     <Typography variant="h3">[ 검색조건 ]</Typography>
                     <div>
-                        <Button onClick={periodListData} variant="contained" color="secondary">
+                        <Button onClick={accountPeriodList}  sx={{ ml: 1, flex: 1 }} size="large" variant="contained" color="secondary">
                             회계 기수조회
                         </Button>
-                        <Modal open={open}>
+                        <Button variant="contained" sx={{ ml: 1, flex: 1 }} size="large" color="secondary" onClick={pdfDownload}>
+                            출력
+                        </Button>
+                        <Modal open={periodListModal}>
                             <div align="center">
                                 <div
                                     align="center"
@@ -85,7 +97,7 @@ const CapitalStatementMenu = () => {
                                     }}
                                 >
                                     <DataGrid
-                                        rows={list}
+                                        rows={accountPeriodNoData}
                                         columns={columns}
                                         pageSize={5}
                                         rowsPerPageOptions={[5]}
@@ -99,7 +111,7 @@ const CapitalStatementMenu = () => {
                 </div>
             </Grid>
         </Grid>
-        <div>
+        <div ref={componentRef}>
                 <MainCard
                     content={false}
                     sx={{

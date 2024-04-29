@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import Layout from 'layout';
 import { ReactElement } from 'react-markdown/lib/react-markdown';
 
@@ -10,32 +11,35 @@ import MainCard from 'ui-component/cards/MainCard';
 import axios from 'axios';
 import { Box } from '@mui/system';
 import { accountDetailcolums, columns } from './AccountingColumns'
+import { useDispatch, useSelector } from 'react-redux';
+import { settlementActions } from 'store/redux-saga/reducer/settlement/settlementReducer';
 
 const Accounting = () => {
 
-  // const data = useSelector((state) => state.RootReducers.AccReducer.StatementReducer.accountingList);
+  const dispatch = useDispatch();
+
   const [data, setData] = useState([])
-  const [data2,setData2] = useState([]);
 
+  const [periodListModal, setPeriodListModal] = useState(false);
 
-
-  // const list = useSelector((state) => state.RootReducers.AccReducer.StatementReducer.periodNoList);
-  const [list, setList] = useState([]);
-
-  const [open, setOpen] = useState(false);
   const callResult = 'SEARCH';
 
-  const periodListData = () => {
-    setOpen(true);
-    axios.get('http://localhost:9103/settlement/periodNoList')
-      .then((res) => {
-        console.log(res.data.periodNoList),
-          setList(res.data.periodNoList)
-      })
-  };
+  // 회계연도 검색 클릭
+  const accountPeriodList = () => {
+    console.log('날짜 모달 ON');
+    setPeriodListModal(true);
+    dispatch(settlementActions.AccountPeriodNoRequest());
+    };
 
+  // 회계기수데이터
+	const accountPeriodNoData = useSelector((state:any) => {
+		console.log("----- state -----", state);
+		return state.settlement.periodNoList
+	})
+
+  // 결산자료 조회 
   const searchData = (e: any) => {
-    setOpen(false);
+    setPeriodListModal(false);
     console.log(e.id);
     console.log("----- e.row.accountPeriodNo -----", e.row.accountPeriodNo)
     axios.get('http://localhost:9103/settlement/accounting',
@@ -61,19 +65,13 @@ const Accounting = () => {
       <Grid item xs={12}>
         <div align="center">
           <div align="right">
-            {/*<Button variant="contained" color="secondary" startIcon={<TaskIcon />} onClick={test}>
-              결산
-            </Button>
-            <Button variant="contained" color="secondary">
-              결산 취소
-  </Button>*/}
           </div>
           <Typography variant="h3">[ 검색조건 ]</Typography>
           <div>
-            <Button onClick={periodListData} variant="contained" color="secondary">
+            <Button onClick={accountPeriodList} variant="contained" color="secondary">
               결산 자료 불러오기
             </Button>
-            <Modal open={open}>
+            <Modal open={periodListModal}>
               <div align="center">
                 <div
                   className="ag-theme-balham"
@@ -84,7 +82,7 @@ const Accounting = () => {
                   }}
                 >
                   <DataGrid
-                    rows={list}
+                    rows={accountPeriodNoData}
                     columns={columns}
                     pageSize={5}
                     rowsPerPageOptions={[5]}

@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useRef } from 'react'
 import Layout from 'layout';
 import { ReactElement } from 'react-markdown/lib/react-markdown';
 import Page from 'ui-component/Page';
@@ -12,13 +12,8 @@ import { DataGrid } from '@mui/x-data-grid';
 import 'ag-grid-community/styles/ag-grid.css';
 import { yearColumns, IncomeStatementGroupColumns, IncomeStatementColumns } from './FinancialStatementsColumns';
 import { useDispatch, useSelector } from 'react-redux';
-import { getSelectDate, getTrialDate, requestSearchDate } from 'store/slices/detailTrial';
 import { settlementActions } from 'store/redux-saga/reducer/settlement/settlementReducer';
 import { useReactToPrint } from 'react-to-print';
-/**
- * 추가사항
-  
-*/
 
   const FinancialStatements = () => {
 
@@ -29,7 +24,6 @@ import { useReactToPrint } from 'react-to-print';
 
   const [periodListModal, setPeriodListModal] = useState(false);
   const [accountPeriodNo, setAccountPeriodNo] = useState();
-  const [financialStatementlist, setFinancialStatementList]: any = useState('');
   const componentRef = useRef<HTMLDivElement>(null);
 
   
@@ -49,7 +43,7 @@ import { useReactToPrint } from 'react-to-print';
 
 
   // 날짜모달 row 클릭시 발생 이벤트
-  const clickYearData = (e: any) => {
+  const clickAccountPeriodNo = (e: any) => {
     console.log('[clickYearData]', e.row);
     setPeriodListModal(false);
     console.log('----- e.row.fiscalYear -----', e.row.fiscalYear);
@@ -57,21 +51,6 @@ import { useReactToPrint } from 'react-to-print';
     setAccountPeriodNo(e.row.accountPeriodNo);
     console.log('----- accountPeriodNo -----', accountPeriodNo);
   }
-
-
-  // 조회 클릭
-  // const searchFinancialStatementList = async (params: any) => {
-  //   console.log('조회 클릭')
-  //   let callResult = 'SEARCH'
-  //   await accountApi.get('/settlement/financialposition', {
-  //     params: {accountPeriodNo: accountPeriodNo, callResult: callResult}
-  //   })
-  //     .then(res => {
-  //       console.log('재무상태표', res.data.financialPositionList.financialPosition);
-  //       setFinancialStatementList(res.data.financialPositionList.financialPosition);
-  //     })
-  //     .catch(e => console.error(e));
-  // };
 
   // 조회 클릭
   const searchFinancialStatementList = () => {
@@ -82,8 +61,13 @@ import { useReactToPrint } from 'react-to-print';
     if(selectedData !== undefined){
       dispatch(settlementActions.FinancialPositionListRequest(selectedData))
     }
-
   }
+
+  // 재무상태표
+  const financialStatementDataList = useSelector((state:any) => {
+		console.log("----- state -----", state);
+		return state.settlement.financialStatementlist
+	})
 
   // pdf 다운로드
   const pdfDownload = useReactToPrint({
@@ -144,7 +128,7 @@ import { useReactToPrint } from 'react-to-print';
                           pageSize={5}
                           rowsPerPageOptions={[5]}
                           getRowId={(row) => row.accountPeriodNo}
-                          onRowClick={clickYearData} //년도의 행 선택했을때 실행
+                          onRowClick={clickAccountPeriodNo} //년도의 행 선택했을때 실행
                         />
                       </Box>
                     </div>
@@ -183,7 +167,7 @@ import { useReactToPrint } from 'react-to-print';
             >
               <DataGrid
                 experimentalFeatures={{ columnGrouping: true }}
-                rows={financialStatementlist}
+                rows={financialStatementDataList}
                 columns={IncomeStatementColumns}
                 getRowId={(row: any) => row.accountName}
                 columnGroupingModel={IncomeStatementGroupColumns}

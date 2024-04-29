@@ -9,146 +9,42 @@ import { useTheme } from '@mui/material/styles';
 import SearchIcon from '@mui/icons-material/Search';
 import { DataGrid } from '@mui/x-data-grid';
 import accountApi from 'api/accountApi';
+import { useDispatch, useSelector } from 'react-redux';
 import { useReactToPrint } from 'react-to-print';
+import { yearColumns, MonthIncomeStatementColumns } from './MonthIncomeStatementColumns';
+import { settlementActions } from 'store/redux-saga/reducer/settlement/settlementReducer';
 
 
 const MonthIncomeStatement = () => {
 
   const theme = useTheme();
+  const dispatch = useDispatch();
+
 
   const [year, setYear] = useState('');
-  const [yearModal, setYearModal] = useState(false);
-  const [periodNoList, setPeriodNoList]: any = useState('');
+  const [periodListModal, setPeriodListModal] = useState(false);
   const [monthIncomeStatementlist, setMonthIncomeStatementlist]: any = useState('');
   const componentRef = useRef<HTMLDivElement>(null);
 
-  // 날짜 모달 컬럼
-  const yearColumns = [
-    {
-      headerName: '회계 기수',
-      field: 'accountPeriodNo',
-      width: 250
-    },
-    {
-      headerName: '회계 시작일',
-      field: 'periodStartDate',
-      width: 250
-    },
-    { headerName: '회계 종료일', field: 'periodEndDate', width: 250 }
-  ];
 
-  const currencyFormatter = new Intl.NumberFormat('ko-KR', {
-    style: 'currency',
-    currency: 'KRW'
-  });
-
-  const wonPrice = {
-    type: 'number',
-    valueFormatter: (params) => {
-      if (params.value === null || isNaN(params.value)) {
-        return ''; // Handle null or NaN values gracefully
-      }
-      return currencyFormatter.format(params.value);
-    }
-  };
-
-  const MonthIncomeStatementColumns = [
-    {
-      headerName: '연도',
-      field: 'year',
-      hide: true,
-      width: '150'
-    },
-    {
-      headerName: '월',
-      field: 'month',
-      sortable: true, //컬럼눌러서 정렬가능하게하기
-      cellClass: 'grid-cell-centered',
-      width: 50
-    },
-    {
-      headerName: '매출액',
-      field: 'salesSummary',
-      ...wonPrice,
-      width: 150
-    },
-    {
-      headerName: '매출원가',
-      field: 'salesCostSummary',
-      background: 'red',
-      ...wonPrice,
-      width: 150
-    },
-    {
-      headerName: '매출총액',
-      field: 'grossMargin',
-      ...wonPrice,
-      width: 150
-    },
-    {
-      headerName: '판관비',
-      field: 'salesManageCostSummary',
-      ...wonPrice,
-      width: 150
-    },
-    {
-      headerName: '영업이익',
-      field: 'operatingProfit',
-      ...wonPrice,
-      width: 150
-    },
-    {
-      headerName: '영업외수익',
-      field: 'nonOperatingProfitSummary',
-      ...wonPrice,
-      width: 150
-    },
-    {
-      headerName: '영업외비용',
-      field: 'nonOperatingCostSummary',
-      ...wonPrice,
-      width: 150
-    },
-    {
-      headerName: '법인세차감전이익',
-      field: 'ordinaryProfit',
-      ...wonPrice,
-      width: 150
-    },
-    {
-      headerName: '법인세',
-      field: 'corporateTaxSummary',
-      ...wonPrice,
-      width: 150
-    },
-    {
-      headerName: '당기순이익',
-      field: 'netIncome',
-      ...wonPrice,
-      width: 150
-    }
-  ];
-
-  // 회계연도 검색 클릭
-  const onYearBtn = () => {
+   // 회계연도 검색 클릭
+   const accountPeriodList = () => {
     console.log('날짜 모달 ON');
-    setYearModal(true);
-    getYearApi();
-  };
+    setPeriodListModal(true);
+    dispatch(settlementActions.AccountPeriodNoRequest());
+    };
 
-  const getYearApi = async () => {
-    await accountApi.get('/settlement/periodNoList', {})
-      .then(res => {
-        setPeriodNoList(res.data.periodNoList)
-        console.log('[periodNoList]', res.data.periodNoList)
-      }).catch(e => console.error((e)));
-  }
+  // 회계기수데이터
+	const accountPeriodNoData = useSelector((state:any) => {
+		console.log("----- state -----", state);
+		return state.settlement.periodNoList
+	})
 
   // 날짜모달 row 클릭시 발생 이벤트
   const clickYearData = (e: any) => {
     const yearset = e.row.periodStartDate.substring(0, 4);
     console.log('[clickYearData]', e.row);
-    setYearModal(false);
+    setPeriodListModal(false);
     setYear(yearset);
   }
 
@@ -199,12 +95,12 @@ const MonthIncomeStatement = () => {
                         inputProps={{ 'aria-label': 'search google maps' }}
                         value={year}
                       />
-                      <IconButton type="button" sx={{ p: '10px' }} aria-label="search" onClick={onYearBtn}>
+                      <IconButton type="button" sx={{ p: '10px' }} aria-label="search" onClick={accountPeriodList}>
                         <SearchIcon />
                       </IconButton>
                       <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
                     </Paper>
-                    <Modal open={yearModal} >
+                    <Modal open={periodListModal} >
                       <div
                         style={{
                           height: 400,
@@ -220,7 +116,7 @@ const MonthIncomeStatement = () => {
                           }}
                         >
                           <DataGrid
-                            rows={periodNoList}
+                            rows={accountPeriodNoData}
                             columns={yearColumns}
                             pageSize={5}
                             rowsPerPageOptions={[5]}

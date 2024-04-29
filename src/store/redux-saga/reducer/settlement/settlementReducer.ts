@@ -36,8 +36,8 @@ const settlementSlice = createSlice({
             console.warn('재무상태표 데이터 요청 중');
         },
         FinancialPositionListSuccess(state, action){
-            console.warn('state 업데이트', action.payload);
-            state.financialStatementlist = action.payload;
+            console.warn('state 업데이트', action.payload.financialPositionList);
+            state.financialStatementlist = action.payload.financialPositionList.financialPosition;
         },
         FinancialPositionListFailure(state, action){
             console.warn('error');
