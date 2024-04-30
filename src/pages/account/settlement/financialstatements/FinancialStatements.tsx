@@ -76,6 +76,7 @@ import { useReactToPrint } from 'react-to-print';
     documentTitle: ' 재무상태표 '
   })
 
+  // git-slack 연동 확인
 
   return (
     <Page title="재무상태표">
