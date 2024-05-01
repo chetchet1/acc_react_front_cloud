@@ -8,9 +8,6 @@ import { DataGrid, GridRowParams, GridColDef } from '@mui/x-data-grid';
 import { gridSpacing } from 'store/constant';
 import { useTheme } from '@mui/material/styles';
 import { useSelector, useDispatch } from 'react-redux';
-import Page from 'ui-component/Page';
-import { dispatch } from 'store';
-import { getSelectDate, getTrialDate, requestSearchDate } from 'store/slices/detailTrial';
 import Layout from 'layout';
 import { settlementActions } from 'store/redux-saga/reducer/settlement/settlementReducer';
 import { getTotalTrialBalance } from 'store/redux-saga/api/settlement';
@@ -43,6 +40,7 @@ const TotalTrialBalance2 = () => {
 		setPeriodListModal(false); // 모달 종료
 
 		console.log("----- e.row.accountPeriodNo -----", e.row.accountPeriodNo)
+
 		const selectedData:any = { periodNoList : e.row.accountPeriodNo }
 
 		console.log("----- selectedData -----",selectedData);
