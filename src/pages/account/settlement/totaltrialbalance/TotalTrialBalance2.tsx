@@ -128,9 +128,9 @@ const TotalTrialBalance2 = () => {
           }}
         >
           <DataGrid
-            rows={totalTrialBalanceList}
+            rows={totalTrialBalanceListData}
             columns={totalTrialBalanceColumns}
-            getRowId={(row) => row.totalTrialBalance}
+            getRowId={(row) => row.accountName}
             autoHeight
           />
         </Box>

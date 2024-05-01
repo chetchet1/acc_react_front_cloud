@@ -27,7 +27,7 @@ function* totalTrialBalanceList(action:any){
         const response:AxiosResponse = yield call(getTotalTrialBalance, payload);
         console.warn('조회 response', response);
 
-        yield put(settlementActions.TotalTrialBalanceListSuccess(response.data));
+        yield put(settlementActions.TotalTrialBalanceListSuccess(response.data.totalTrialBalanceResult));
     }catch(error){
         yield put(settlementActions.TotalTrialBalanceListFailure(error));
     }

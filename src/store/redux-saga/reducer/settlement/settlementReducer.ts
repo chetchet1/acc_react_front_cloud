@@ -26,8 +26,9 @@ const settlementSlice = createSlice({
             console.warn('합계잔액시산표 목록 요청 중')
         },
         TotalTrialBalanceListSuccess(state, action){
-            console.warn('state 업데이트', action.payload.periodNoList);
-            state.totalTrialBalanceList = action.payload.periodNoList;
+            console.warn('state 업데이트', action.payload.totalTrialBalanceResult);
+            state.totalTrialBalanceList = action.payload;
+            console.log("----- action.payload -----", action.payload);
         },
         TotalTrialBalanceListFailure(state, action){
             console.warn('error')

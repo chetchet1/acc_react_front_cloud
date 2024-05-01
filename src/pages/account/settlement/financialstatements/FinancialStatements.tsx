@@ -90,7 +90,7 @@ import { useReactToPrint } from 'react-to-print';
             }}
             secondary={
               <Grid container spacing={1}>
-                <Grid item>
+                <Grid item> 
                   <Paper
                     id="startDate"
                     component="form"
@@ -145,7 +145,7 @@ import { useReactToPrint } from 'react-to-print';
               </Grid>
             }
           />
-          <MainCard>
+          <MainCard ref={componentRef}>
             <Box
               sx={{
                 height: 700,
