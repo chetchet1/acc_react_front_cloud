@@ -69,7 +69,6 @@ const TotalTrialBalance2 = () => {
 
 
 
-
   const excuteStatement = () => {
     // 결산 실행 함수
   };
@@ -93,8 +92,8 @@ const TotalTrialBalance2 = () => {
 						<DataGrid
 							rows={accountPeriodNoData}
 							columns={accountPeriodListColumns}
-							pageSize={5}
-							//rowsPerPageOptions={{5}}
+              pageSize={5}
+              rowsPerPageOptions={[5]}
 							getRowId={(row) => row.accountPeriodNo}
 							onRowClick={searchPeriodListData}
 						/>
@@ -144,7 +143,7 @@ const TotalTrialBalance2 = () => {
 							rows={accountPeriodNoData}
 							columns={accountPeriodListColumns}
 							pageSize={5}
-							//rowsPerPageOptions={{5}}
+              rowsPerPageOptions={[5]}
 							getRowId={(row) => row.accountPeriodNo}
 							onRowClick={searchPeriodListData}
 						/>
@@ -185,7 +184,8 @@ const TotalTrialBalance2 = () => {
             rows={totalTrialBalanceList}
             columns={totalTrialBalanceColumns}
             getRowId={(row) => row.totalTrialBalance}
-            autoHeight
+            pageSize={5}
+            rowsPerPageOptions={[5]}
           />
         </Box>
 		</div>
