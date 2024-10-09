@@ -42,7 +42,7 @@ const Accounting = () => {
     setPeriodListModal(false);
     console.log(e.id);
     console.log("----- e.row.accountPeriodNo -----", e.row.accountPeriodNo)
-    axios.get('http://localhost:9103/settlement/accounting',
+    axios.get(`${process.env.NEXT_PUBLIC_BACKEND_ACC_URL}/settlement/accounting`,
       {
         params: {
           accountPeriodNo: e.row.accountPeriodNo

@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import { all, call, put, takeLatest } from 'redux-saga/effects';
 import { operateActions } from '../../reducer/operate/operateReducer';
 import {
@@ -28,7 +27,7 @@ function* fetchAssetCode(){
         const response:AxiosResponse = yield call(getAssetList);
         console.warn('자산유형 response', response);
 
-        yield put(operateActions.FixedAssetCodeSuccess(response.data));
+        yield put(operateActions.FixedAssetCodeSuccess(response.data)); // 이게 액션함수 인듯함
     
     }catch(error){
         yield put(operateActions.FixedAssetCodeFailure());
@@ -37,10 +36,11 @@ function* fetchAssetCode(){
 
 //고정자산목록
 function* fixedAssetList(action:any){
-    const { payload } = action;
+    const { payload } = action; // 메인페이지에서 받아온 인숙밧이 payload에 입력된느듯함.
     try{
         const response:AxiosResponse = yield call(getFixedAssetList, payload);
         console.warn('조회 response', response);
+        console.log("액션액션",payload)
 
         yield put(operateActions.FixedAssetListSuccess(response.data));
     }catch(error){
@@ -79,7 +79,7 @@ function* selectedDepList(action:any){
         const response:AxiosResponse = yield call(getSelectedDepList, payload);
         console.warn('조건 조회 response', response);
 
-        yield put(operateActions.SelectedDepListSuccess(response.data));
+        yield put(operateActions.SelectedDepListSuccess(response.data)); // 이게 액션함수 인듯함
 
     }catch(error){
         yield put(operateActions.SelectedDepListFailure());
@@ -251,7 +251,7 @@ function* generalFundStatus(action:any){
 }
 
 function* watchFetchOperate(){
-    yield takeLatest(operateActions.FixedAssetCodeRequest.type, fetchAssetCode);
+    yield takeLatest(operateActions.FixedAssetCodeRequest.type, fetchAssetCode); //들어오는 모든 FixedAssetCodeRequest 액션에대해 fetchAssetCode 실행.
     yield takeLatest(operateActions.FixedAssetListRequest.type, fixedAssetList);
     yield takeLatest(operateActions.AddFixedAssetRequest.type, addFixedAsset);
    
@@ -275,7 +275,7 @@ function* watchFetchOperate(){
     yield takeLatest(operateActions.SelectGeneralFundRequest.type, generalFundStatus);
 };
 
-export function* operateSagas(){
+export function* operateSagas(){ //promise.all 과 비슷하다 데이터들을 동시에 가져올 수 있게끔 하는? 그런 비동기적 코드인 거 같음
     yield all([
         watchFetchOperate(),
     ]);

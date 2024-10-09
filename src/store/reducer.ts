@@ -15,7 +15,7 @@ import userReducer from './slices/user';
 import cartReducer from './slices/cart';
 import kanbanReducer from './slices/kanban';
 import menuReducer from './slices/menu';
-import budgetReducer from './budgetReducer';
+import budgetReducer from './redux-saga/reducer/budget/budgetReducer';
 import detailTrialReducer from './slices/detailTrial';
 import budgetStatusReducer from './slices/budget/budgetStatus';
 import slipReducer from './slices/slip';

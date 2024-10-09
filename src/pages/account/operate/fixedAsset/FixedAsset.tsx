@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import React, { useEffect } from 'react';
 import Layout from 'layout';
 import { ReactElement } from 'react-markdown/lib/react-markdown';
@@ -46,7 +45,7 @@ const FixedAsset = () => {
     const handleAssetName = (value:any) => {
       const selectedData:any = { accountName: value.label, accountCode: value.value }
       if(selectedData){
-        dispatch(operateActions.FixedAssetListRequest(selectedData));
+        dispatch(operateActions.FixedAssetListRequest(selectedData)); // 선택한 데이터 값
       }
     }
   
@@ -63,7 +62,7 @@ const FixedAsset = () => {
             options={fixedAssetCode.map((asset:any) => ({label: asset.assetName, value: asset.assetCode}))}
             defaultValue={fixedAssetCode[1] }
             renderInput={(params) => <TextField {...params} label="자산유형" />}
-            onChange={(event, value)=> handleAssetName(value)}
+            onChange={(event, value)=> handleAssetName(value)} //사용자가 선택하면 호출하는 함수
             />
         </Grid>
 

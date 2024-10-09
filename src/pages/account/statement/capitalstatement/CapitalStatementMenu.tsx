@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import React, { useState } from "react";
 import { Button, Grid, Modal, Typography, Table, TableBody, TableCell, TableContainer, TableHead
     ,TableRow } from "@mui/material";
@@ -44,7 +43,7 @@ const CapitalStatementMenu = () => {
     
     const periodListData = () => {
         setOpen(true);
-        axios.get('http://localhost:9103/settlement/periodNoList')
+        axios.get(`${process.env.NEXT_PUBLIC_BACKEND_ACC_URL}/settlement/periodNoList`)
             .then(res => 
                 {
                 console.log(res.data);
@@ -57,7 +56,7 @@ const CapitalStatementMenu = () => {
     const searchData = (e:any) => {
         setOpen(false);
         console.log(e);
-        axios.get('http://localhost:9103/settlement/capitalstatement'
+        axios.get(`${process.env.NEXT_PUBLIC_BACKEND_ACC_URL}/settlement/capitalstatement`
         ,{params:{accountPeriodNo: e.id, callResult: callResult}
             }
             )

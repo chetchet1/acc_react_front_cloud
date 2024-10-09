@@ -233,7 +233,7 @@ function AccountDialog() {
   useEffect(() => {
     // (async () => {
     //   try {
-    //     const response = await fetch('http://localhost:9103/operate/parentaccountlist');
+    //     const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_ACC_URL}/operate/parentaccountlist`);
     //     if (!response.ok) {
     //       throw new Error('서버 응답이 실패했습니다.');
     //     }
@@ -245,7 +245,7 @@ function AccountDialog() {
     // })();
 
     (async ()=>{
-      await accountApi.get('http://localhost:9103/operate/parentaccountlist', {})
+      await accountApi.get(`${process.env.NEXT_PUBLIC_BACKEND_ACC_URL}/operate/parentaccountlist`, {})
         .then(res=>{
           console.log('accountCodeList', res.data.accountCodeList)
           setData(res.data.accountCodeList)
@@ -258,7 +258,7 @@ function AccountDialog() {
   const onCellClick = (code: any) => {
     console.log(code);
     setParentAccountInnerCode(code);
-    axios.get('http://localhost:9103/operate/detailaccountlist', {params: {code: code}})
+    axios.get(`${process.env.NEXT_PUBLIC_BACKEND_ACC_URL}/operate/detailaccountlist`, {params: {code: code}})
       .then((res) => {
         console.log('accountCodeDetailList', res.data);
         setDetailData(res.data);

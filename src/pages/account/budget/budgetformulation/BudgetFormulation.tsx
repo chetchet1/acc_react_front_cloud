@@ -15,15 +15,17 @@ import SubCard from 'ui-component/cards/SubCard';
 
 import { ReactElement } from 'react-markdown/lib/react-markdown';
 import Layout from 'layout';
+import { useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+import { budgetActions } from 'store/redux-saga/reducer/budget/budgetReducer';
+import { useSelector } from 'react-redux';
 
 import axios from 'axios';
 import { BudgetColumnDefType, DetailDeptDef, ModalPropsBudget, MonthBudget, PeriodDef, WorkPlaceDef } from '../types/type';
 
 
-
 const BudgetFormulation = () => {
-
-
+    const dispatch = useDispatch();
     const [yearList, setYearList] = useState<PeriodDef[]>([]);
     const [workplaceList, setWorkplaceList] = useState<WorkPlaceDef[]>([]);
     const [deptList, setDeptList] = useState<DetailDeptDef[]>([]);
@@ -109,38 +111,46 @@ const BudgetFormulation = () => {
         { field: 'accountName', headerName: '계정과목명', width: 480, align: 'center' }
     ];
 
+    useEffect(() => {
+        dispatch(budgetActions.PeriodListRequest()),
+            dispatch(budgetActions.WorkPlaceRequest())
+    }, []);
+
+    const periodBudgetList = useSelector((state: any) => state.budget.fixedBudgetList);
+    const workPlaceDeptCall = useSelector((state: any) => state.budget.workPlaceListName)
+    const detailDeptCall = useSelector((state: any) => state.budget.deptDetailCodeName);
+    const parentAccountList = useSelector((state: any) => state.budget.accountCodeList);
+    const detailAccountList = useSelector((state : any) => state.budget.detailAccountList)
+    const searchBudgetList = useSelector((state : any) => {
+        return state.budget.searchAccountBudgetList
+    })
+
+
+
+    // 날짜 모달 데이터 불러오기
     const yearListData = () => { //월계표조회 누르면 실행
+        console.log("yearListData")
         yearSetOpen(true); //년도 모달을 띄움
-
-        axios.get('http://localhost:9103/settlement/periodNoList')
-            .then((res) => {
-                console.log(res.data.periodNoList),
-                    setYearList(res.data.periodNoList)
-            })
-
-    };
-
-
-    const searchYearData = (e: any) => {
-        const yearset = e.row.periodStartDate.substring(0, 4);
-        console.log(e.row);
-        yearSetOpen(false);
-        setYear(yearset);
-        setAccountPeriodNo(e.row.accountPeriodNo);
+        //dispatch(budgetActions.FiexdPeriodList);
+        //dispatch(getPeriodList() as any) // 데이터 호출을 안되네 ?
     }
 
-    const workListData = () => {
+    // 날짜 모달 데이터 (row) 클릭 이벤트
+    const searchYearData = (e: any) => {
+        const yearset = e.row.periodStartDate.substring(0, 4); //클릭한 해당연도 데이터 값을 서브스트링으로 끊어서 가져옴.
+        console.log('[searchYearData]]', e.row);
+        yearSetOpen(false);
+        setYear(yearset);
+        setAccountPeriodNo(e.row.accountPeriodNo); //2
+        console.log('[accountPeriodNo]', accountPeriodNo)
+    }
 
+    // 사업장 모달 데이터 조회
+    const workListData = () => {
         workSetOpen(true);
         setDeptCode(""); //부서코드 초기화
         setDeptName(""); //부서 이름 초기화
-        axios.get('http://localhost:9103/operate/deptlist')
-            .then((res) => {
-                console.log(res.data);
-                setWorkplaceList(res.data);
-            }
-            )
-
+        console.log("WorkCompany")
     }
 
     const setDepartment = (e: any) => {
@@ -149,24 +159,18 @@ const BudgetFormulation = () => {
         setDeptName(e.row.deptName);
     }
 
+    // 사업장 모달 데이터 row 클릭 이벤트
     const searchDepartment = (e: any) => { //사업장코드 행 선택했을때
         workSetOpen(false); //사업장코드 모달 닫음
-        console.log(e);
-        setWorkplaceName(e.row.workplaceName); //사업장이름 셋팅
-        setWorkplaceCode(e.id); //사업장코드 셋팅
-        console.log(e.row.workplaceName);
+        console.log('[searchDepartment]', e);
+        setWorkplaceName(e.row.workplaceName); //사업장이름 셋팅 그리드에 세팅하려고 세팅하는듯함
+        console.log("usestate workplaceCode", workplaceCode)
+        setWorkplaceCode(e.row.workplaceCode); //사업장코드 셋팅
+        console.log('[workplaceName]', workplaceName);
+        console.log('[workplaceCode]', workplaceCode);
         deptSetOpen(true); //부서 모달띄우기
+        dispatch(budgetActions.GetDetailDeptListRequest((e.row) as any)) // 사업장 모달창에서 Row를 클릭시 액션함수 실행
 
-        // dispatch(getDetailDeptList(e.row) as any);
-
-        axios.get(`http://localhost:9103/operate/detaildeptlist`, {
-            params: e.row
-        }
-        )
-            .then(res => {
-                console.log(res.data);
-                setDeptList(res.data.detailDeptList);
-            })
     }
 
     const searchBudget = () => { //값이 하나라도 할당이 안되어있으면 alert
@@ -176,31 +180,38 @@ const BudgetFormulation = () => {
         if (!accountPeriodNo || !workplaceCode || !deptCode) {
             alert("값을 모두 입력해주세요");
         } else {
-            axios.get(`http://localhost:9103/operate/parentaccountlist`).then(
-                (res) => {
-                    console.log('되냐?', res.data.accountCodeList)
-                    setParentaccountList(res.data.accountCodeList)
-                }
-            )
+            // axios.get(`http://localhost:9103/operate/parentaccountlist`).then(
+            //     (res) => {
+            //         console.log('되냐?', res.data.accountCodeList)
+            //         setParentaccountList(res.data.accountCodeList)
+            //     }
+            // )
+            dispatch(budgetActions.callParentAccountListRequest())
+            
         }
     }
 
-    const onAccountDetail = (e: any) => {
-        console.log(e.row);
-        axios.get('http://localhost:9103/operate/detailaccountlist',
-            { params: { code: e.row.accountInnerCode } }
-        ).then(
-            (res) => {
-                console.log('되냐2?', res.data)
-                setAccountDetailData(res.data);
-            }
-        )
+    // const onAccountDetail = (e: any) => {
+    //     console.log(e.row);
+    //     axios.get(`${process.env.NEXT_PUBLIC_BACKEND_ACC_URL}/operate/detailaccountlist`,
+    //         { params: { code: e.row.accountInnerCode } }
+    //     ).then(
+    //         (res) => {
+    //             console.log('되냐2?', res.data)
+    //             setAccountDetailData(res.data);
+    //         }
+    //     )
+    // }
+
+    //계정 과목 row 클릭
+    const clickAccountRow = (e: any) => {
+        console.log("이벤트 발생", e.row)
+        dispatch(budgetActions.DetailAccountListRequest((e.row) as any))
     }
 
 
 
-
-
+    //계정 과목 상세 클리 useSTate를 이용해 값 너헝주기
     const budgetDetailRow = (e: any) => {
         console.log(e);
         setAccountInnerCode(e.id);
@@ -221,24 +232,38 @@ const BudgetFormulation = () => {
             if (Object.values(budgetEntity).some((datavalue) => datavalue == '')) {
                 alert('상단을 모두 선택해 주십시오')
             } else {
-                await axios.get('http://localhost:9103/budget/budget', {
-                    params: budgetEntity
-                }).then((res) => {
-                    console.log('월 조회', res.data.currentBudgetList[0]);
-                    setOneMonth(res.data.currentBudgetList[0].m1Budget)
-                    setTwoMonth(res.data.currentBudgetList[0].m2Budget)
-                    setThreeMonth(res.data.currentBudgetList[0].m3Budget)
-                    setFourMonth(res.data.currentBudgetList[0].m4Budget)
-                    setFiveMonth(res.data.currentBudgetList[0].m5Budget)
-                    setSixMonth(res.data.currentBudgetList[0].m6Budget)
-                    setSevenMonth(res.data.currentBudgetList[0].m7Budget)
-                    setEightMonth(res.data.currentBudgetList[0].m8Budget)
-                    setNineMonth(res.data.currentBudgetList[0].m9Budget)
-                    setTenMonth(res.data.currentBudgetList[0].m10Budget)
-                    setElevenMonth(res.data.currentBudgetList[0].m11Budget)
-                    setTwelveMonth(res.data.currentBudgetList[0].m12Budget)
-                }
-                )
+                // await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_ACC_URL}/budget/budget`, {
+                //     params: budgetEntity
+                // }).then((res) => {
+                //     console.log('월 조회', res.data.currentBudgetList[0]);
+                //     setOneMonth(res.data.currentBudgetList[0].m1Budget)
+                //     setTwoMonth(res.data.currentBudgetList[0].m2Budget)
+                //     setThreeMonth(res.data.currentBudgetList[0].m3Budget)
+                //     setFourMonth(res.data.currentBudgetList[0].m4Budget)
+                //     setFiveMonth(res.data.currentBudgetList[0].m5Budget)
+                //     setSixMonth(res.data.currentBudgetList[0].m6Budget)
+                //     setSevenMonth(res.data.currentBudgetList[0].m7Budget)
+                //     setEightMonth(res.data.currentBudgetList[0].m8Budget)
+                //     setNineMonth(res.data.currentBudgetList[0].m9Budget)
+                //     setTenMonth(res.data.currentBudgetList[0].m10Budget)
+                //     setElevenMonth(res.data.currentBudgetList[0].m11Budget)
+                //     setTwelveMonth(res.data.currentBudgetList[0].m12Budget)
+                // }
+                // )
+                dispatch(budgetActions.SearchBudgetRequest(budgetEntity as any))
+                setOneMonth(searchBudgetList.currentBudgetList[0].m1Budget)
+                setTwoMonth(searchBudgetList.currentBudgetList[0].m2Budget)
+                setThreeMonth(searchBudgetList.currentBudgetList[0].m3Budget)
+                setFourMonth(searchBudgetList.currentBudgetList[0].m4Budget)
+                setFiveMonth(searchBudgetList.currentBudgetList[0].m5Budget)
+                setSixMonth(searchBudgetList.currentBudgetList[0].m6Budget)
+                setSevenMonth(searchBudgetList.currentBudgetList[0].m7Budget)
+                setEightMonth(searchBudgetList.currentBudgetList[0].m8Budget)
+                setNineMonth(searchBudgetList.currentBudgetList[0].m9Budget)
+                setTenMonth(searchBudgetList.currentBudgetList[0].m10Budget)
+                setElevenMonth(searchBudgetList.currentBudgetList[0].m11Budget)
+                setTwelveMonth(searchBudgetList.currentBudgetList[0].m12Budget)
+
             }
         } catch (error) {
             alert(`네트워크 오류${error}`);
@@ -313,7 +338,7 @@ const BudgetFormulation = () => {
             if (Object.values(budgetEntity).some((datavalue) => datavalue == '')) {
                 alert('월별 신청값을 입력해 주십시오')
             } else {
-                await axios.post('http://localhost:9103/budget/budgetlist', budgetEntity)
+                dispatch(budgetActions.BudgetRegisterRequest(budgetEntity as any))
                 alert('예산편성 완료')
             }
         } catch (error) {
@@ -387,12 +412,12 @@ const BudgetFormulation = () => {
                                                 }}
                                             >
                                                 <DataGrid
-                                                    rows={parentaccountlist}
+                                                    rows={parentAccountList}
                                                     columns={accountColumns}
                                                     pageSize={100}
                                                     rowsPerPageOptions={[5]}
                                                     getRowId={(row: any) => row.accountInnerCode}
-                                                    onRowClick={onAccountDetail}
+                                                    onRowClick={clickAccountRow}
                                                 />
                                             </Box>
                                         </div>
@@ -417,7 +442,7 @@ const BudgetFormulation = () => {
                                                 }}
                                             >
                                                 <DataGrid
-                                                    rows={accountDetailData}
+                                                    rows={detailAccountList}
                                                     columns={accountDetailcolums}
                                                     pageSize={100}
                                                     rowsPerPageOptions={[5]}
@@ -518,7 +543,7 @@ const BudgetFormulation = () => {
                                 }}
                             >
                                 <DataGrid
-                                    rows={yearList}
+                                    rows={periodBudgetList.periodNoList}
                                     columns={yearColumns}
                                     pageSize={5}
                                     rowsPerPageOptions={[5]}
@@ -545,7 +570,7 @@ const BudgetFormulation = () => {
                                 }}
                             >
                                 <DataGrid
-                                    rows={workplaceList}
+                                    rows={workPlaceDeptCall}
                                     columns={workColumns}
                                     pageSize={10}
                                     rowsPerPageOptions={[10]}
@@ -572,7 +597,7 @@ const BudgetFormulation = () => {
                                 }}
                             >
                                 <DataGrid
-                                    rows={deptList}
+                                    rows={detailDeptCall}
                                     columns={deptColumns}
                                     pageSize={10}
                                     rowsPerPageOptions={[10]}

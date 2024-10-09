@@ -55,7 +55,7 @@ const CapitalStatementMenu = () => {
         setPeriodListModal(false);
         console.log(e);
         axios.get(
-            'http://localhost:9103/settlement/capitalstatement' ,
+            `${process.env.NEXT_PUBLIC_BACKEND_ACC_URL}/settlement/capitalstatement` ,
             {params:{accountPeriodNo: e.id, callResult: callResult}} 
         ).then((res) => {
             console.log(res.data);

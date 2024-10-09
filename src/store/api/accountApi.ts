@@ -2,7 +2,7 @@
 import axios, { AxiosInstance, AxiosResponse, AxiosError } from 'axios';
 
 const instance: AxiosInstance = axios.create({
-  baseURL: 'http://localhost:9103',
+  baseURL: `${process.env.NEXT_PUBLIC_BACKEND_ACC_URL}`,
   headers: {
     'Content-Type': 'application/json'
   }

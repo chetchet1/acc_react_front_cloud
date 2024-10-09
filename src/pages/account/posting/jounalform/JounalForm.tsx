@@ -54,7 +54,7 @@ const JournalForm = () => {
   const searchData = () => {
     let params = { startDate: moment(startDate).format('yyyy-MM-DD'), endDate: moment(endDate).format('yyyy-MM-DD') };
     axios
-      .get('http://localhost:9103/posting/rangedjournallist', {
+      .get(`${process.env.NEXT_PUBLIC_BACKEND_ACC_URL}/posting/rangedjournallist`, {
         params: params
       })
       .then((res) => {

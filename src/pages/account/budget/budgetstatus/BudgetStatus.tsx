@@ -45,6 +45,10 @@ import SearchIcon from '@mui/icons-material/Search';
 import { useTheme } from '@mui/material/styles';
 import { BudgetColumnDefType } from '../types/type';
 import accountApi from 'api/accountApi';
+import { dispatch } from 'store';
+import { budgetReducer } from 'store/budgetReducer';
+import { budgetActions } from 'store/redux-saga/reducer/budget/budgetReducer';
+import { useSelector } from 'react-redux';
 
 const BudgetStatus = () => {
 
@@ -62,7 +66,7 @@ const BudgetStatus = () => {
     const [deptModal, setDeptModal] = useState(false);
 
     const [accountPeriodNo, setAccountPeriodNo] = useState('');
-    const [workplaceCode, setWorkplaceCode] = useState();    
+    const [workplaceCode, setWorkplaceCode] = useState();
     const [deptCode, setDeptCode] = useState('');
     const [deptName, setDeptName] = useState('');
 
@@ -75,7 +79,7 @@ const BudgetStatus = () => {
 
     // 날짜 모달 컬럼
     const YearColumns = [
-        { headerName: '시작날짜', field: 'periodStartDate', textAlign: 'center'},
+        { headerName: '시작날짜', field: 'periodStartDate', textAlign: 'center' },
         { headerName: '끝난날짜', field: 'periodEndDate' }
     ];
 
@@ -84,24 +88,24 @@ const BudgetStatus = () => {
         { headerName: '사업장코드', field: 'workplaceCode', align: 'center', headerAlign: 'center' },
         { headerName: '사업장명', field: 'workplaceName', width: 185, align: 'center', headerAlign: 'center' }
     ];
-    
+
     // 부서 모달 컬럼
     const DeptColumns: any[] = [
-        { headerName: '부서코드', field: 'deptCode', align: 'center', headerAlign: 'center'},
+        { headerName: '부서코드', field: 'deptCode', align: 'center', headerAlign: 'center' },
         { headerName: '부서명', field: 'deptName', align: 'center', headerAlign: 'center', width: 180 }
     ];
-    
+
 
     // 부모칼럼
     const BudgetGroupcolumnDefs = [
         {
             headerName: " ", groupId: 'account', width: 350,
-            children: [ { field: "accountInnerCode" }, { field: "accountName" } ],
+            children: [{ field: "accountInnerCode" }, { field: "accountName" }],
         },
         {
             headerName: "누계예산대비실적", groupId: 'total', width: 480,
             children: [
-                { field: "abr" }, { field: "annualBudget" }, 
+                { field: "abr" }, { field: "annualBudget" },
                 { field: "remainingBudget" }, { field: "budgetExecRate" },
             ],
         },
@@ -155,19 +159,19 @@ const BudgetStatus = () => {
     //   };
 
     // 자식칼럼
-    const BudgetcolumnDefs: BudgetColumnDefType[] = [ 
-                { headerName: "계정과목 코드", field: "accountInnerCode", sort: "asc", width: 150},
-                { headerName: "계정과목", field: "accountName", width: 200 },    
+    const BudgetcolumnDefs: BudgetColumnDefType[] = [
+        { headerName: "계정과목 코드", field: "accountInnerCode", sort: "asc", width: 150 },
+        { headerName: "계정과목", field: "accountName", width: 200 },
 
-                { headerName: "실적", field: "abr", width: 120 },
-                { headerName: "예산", field: "annualBudget", width: 120 },
-                { headerName: "잔여예산", field: "remainingBudget", width: 120 },
-                { headerName: "집행율(%)", field: "budgetExecRate", width: 120 },
+        { headerName: "실적", field: "abr", width: 120 },
+        { headerName: "예산", field: "annualBudget", width: 120 },
+        { headerName: "잔여예산", field: "remainingBudget", width: 120 },
+        { headerName: "집행율(%)", field: "budgetExecRate", width: 120 },
 
-                { headerName: "실적", field: "ambr", width: 120 },
-                { headerName: "예산", field: "budget", width: 120 },
-                { headerName: "잔여예산", field: "remainingMonthBudget", width: 120 },
-                { headerName: "집행율(%)", field: "monthBudgetExecRate", width: 120 },
+        { headerName: "실적", field: "ambr", width: 120 },
+        { headerName: "예산", field: "budget", width: 120 },
+        { headerName: "잔여예산", field: "remainingMonthBudget", width: 120 },
+        { headerName: "집행율(%)", field: "monthBudgetExecRate", width: 120 },
     ]
 
     // 상세칼럼
@@ -179,24 +183,29 @@ const BudgetStatus = () => {
         { headerName: "예실대비", field: "budgetAccountComparison", width: 210 },
     ];
 
+    useEffect(() => {
+        dispatch(budgetActions.PeriodListRequest()),
+            dispatch(budgetActions.WorkPlaceRequest())
+    }, []);
+
+    const periodBudgetList = useSelector((state: any) => state.budget.fixedBudgetList);
+    const workPlaceDeptCall = useSelector((state: any) => state.budget.workPlaceListName)
+    const detailDeptCall = useSelector((state: any) => state.budget.deptDetailCodeName);
+
     // 회계연도 검색 클릭
-    const onYearBtn = () => {
-        console.log('날짜 모달 ON');
-        setYearModal(true);
-        getYearApi();
-    };
+    // const onYearBtn = () => {
+    //     console.log('날짜 모달 ON');
+    //     setYearModal(true);
 
-    // 사업장명 검색 클릭
-    const onWorkBtn = () => {
-        if(accountPeriodNo == ''){
-            alert('회계연도를 선택해주세요.')
-        } else {
-            console.log('사업장&부서 모달 ON');
-            setWorkModal(true);
-            getWorkApi();
-        }
-    };
+    // };
 
+    // 날짜 모달 데이터 불러오기
+    const yearListData = () => { //월계표조회 누르면 실행
+        console.log("yearListData")
+        setYearModal(true); //년도 모달을 띄움
+        //dispatch(budgetActions.FiexdPeriodList);
+        //dispatch(getPeriodList() as any) // 데이터 호출을 안되네 ?
+    }
     // 날짜모달 row 클릭시 발생 이벤트
     const clickYearData = (e: any) => {
         const yearset = e.row.periodStartDate.substring(0, 4);
@@ -206,6 +215,16 @@ const BudgetStatus = () => {
         setAccountPeriodNo(e.row.accountPeriodNo);
     }
 
+    // 사업장 모달 데이터 조회
+    const workListData = () => {
+        setWorkModal(true);
+        setDeptCode(""); //부서코드 초기화
+        setDeptName(""); //부서 이름 초기화
+        console.log("WorkCompany")
+        //dispatch(budgetActions.WorkCompanyList('')) //데이터 호출
+    }
+
+
     // 사업장모달 row 클릭시 발생 이벤트
     const clickWorkData = (e: any) => {
         setWorkModal(false);
@@ -213,7 +232,7 @@ const BudgetStatus = () => {
         setWorkplaceCode(e.row.workplaceCode)
         setWorkplaceName(e.row.workplaceName)
         setDeptModal(true);
-        getDeptApi();
+        dispatch(budgetActions.GetDetailDeptListRequest((e.row)as any))
     }
 
     // 부서모달 row 클릭시 발생 이벤트
@@ -225,40 +244,40 @@ const BudgetStatus = () => {
     }
 
     // 상태값 잘 들어갔나 확인
-    console.log('[accountPeriodNo]', accountPeriodNo)
-    console.log('[workplaceCode]', workplaceCode)
-    console.log('[deptCode]', deptCode)
-    console.log('[budgetList]', budgetList)
+    console.log('1[accountPeriodNo]', accountPeriodNo)
+    console.log('2[workplaceCode]', workplaceCode)
+    console.log('3[deptCode]', deptCode)
+    console.log('4[budgetList]', budgetList)
 
-    const getYearApi = async ()=>{
-        await accountApi.get('/settlement/periodNoList', {})
-            .then(res=>{ 
-                setPeriodNoList(res.data.periodNoList)
-                console.log('[periodNoList]', res.data.periodNoList)
-            }).catch(e=>console.error((e)));
-    }
+    // const getYearApi = async ()=>{
+    //     await accountApi.get('/settlement/periodNoList', {})
+    //         .then(res=>{ 
+    //             setPeriodNoList(res.data.periodNoList)
+    //             console.log('[periodNoList]', res.data.periodNoList)
+    //         }).catch(e=>console.error((e)));
+    // }
 
-    const getWorkApi = async ()=>{
-        await accountApi.get('/operate/deptlist', {})
-            .then(res=>{
-                setWorkList(res.data)
-                console.log('[workList]', res.data)
-            })
-            .catch(e=>console.error((e)));
-    }
+    // const getWorkApi = async ()=>{
+    //     await accountApi.get('/operate/deptlist', {})
+    //         .then(res=>{
+    //             setWorkList(res.data)
+    //             console.log('[workList]', res.data)
+    //         })
+    //         .catch(e=>console.error((e)));
+    // }
 
-    const getDeptApi = async ()=>{
-        await accountApi.get('/operate/detaildeptlist', {params: {workplaceCode: workplaceCode}})
-            .then(res=>{
-                setDeptList(res.data.detailDeptList)
-                console.log('[deptList]', res.data.detailDeptList)
-            })
-            .catch(e=>console.error((e)));
-    }
+    // const getDeptApi = async ()=>{
+    //     await accountApi.get('/operate/detaildeptlist', {params: {workplaceCode: workplaceCode}})
+    //         .then(res=>{
+    //             setDeptList(res.data.detailDeptList)
+    //             console.log('[deptList]', res.data.detailDeptList)
+    //         })
+    //         .catch(e=>console.error((e)));
+    // }
 
 
     // 조회 클릭
-    const searchBudget = async ()=>{
+    const searchBudget = async () => {
         console.log('예산실적조회')
         const budgetBean = {
             accountPeriodNo: accountPeriodNo,
@@ -266,7 +285,7 @@ const BudgetStatus = () => {
             workplaceCode: workplaceCode,
         }
         await accountApi.post('/budget/budgetstatus', budgetBean)
-            .then(res => { 
+            .then(res => {
                 console.log('예산실적조회', res.data);
                 setbudgetList(res.data.budgetStatus);
             })
@@ -274,7 +293,7 @@ const BudgetStatus = () => {
     };
 
     // budgetStatus 테이블 row 클릭
-    const searchDetailBudget = async (e: any)=>{
+    const searchDetailBudget = async (e: any) => {
         console.log('세부예산조회')
         const budgetBean = {
             accountPeriodNo: accountPeriodNo,
@@ -290,53 +309,53 @@ const BudgetStatus = () => {
             .catch(e => console.error(e));
     }
 
-    const comparisnBudgetResult=(comparisonBudget: any)=>{ // 두번째 테이블, 1월 2월 3월 1분기 ... 
+    const comparisnBudgetResult = (comparisonBudget: any) => { // 두번째 테이블, 1월 2월 3월 1분기 ... 
         console.log(comparisonBudget);
-        let resultComparisonBudget=comparisonBudget;
-       for (let a=0; a< comparisonBudget.length; a++) {
-           console.log(comparisonBudget[a])
-           if(comparisonBudget[a].appBudget == null){
-               comparisonBudget[a].appBudget = 0
-           }else{
-               comparisonBudget[a].appBudget = numToMoney(comparisonBudget[a].appBudget+"")
-           }
+        let resultComparisonBudget = comparisonBudget;
+        for (let a = 0; a < comparisonBudget.length; a++) {
+            console.log(comparisonBudget[a])
+            if (comparisonBudget[a].appBudget == null) {
+                comparisonBudget[a].appBudget = 0
+            } else {
+                comparisonBudget[a].appBudget = numToMoney(comparisonBudget[a].appBudget + "")
+            }
 
-           if(comparisonBudget[a].orgBudget == null){
-               comparisonBudget[a].orgBudget = 0
-           }else{
-               comparisonBudget[a].orgBudget = numToMoney(comparisonBudget[a].orgBudget+"")
-           }
+            if (comparisonBudget[a].orgBudget == null) {
+                comparisonBudget[a].orgBudget = 0
+            } else {
+                comparisonBudget[a].orgBudget = numToMoney(comparisonBudget[a].orgBudget + "")
+            }
 
-           if(comparisonBudget[a].execPerform == null){
-               comparisonBudget[a].execPerform = 0
-           }else{
-               comparisonBudget[a].execPerform = numToMoney(comparisonBudget[a].execPerform+"")
-           }
+            if (comparisonBudget[a].execPerform == null) {
+                comparisonBudget[a].execPerform = 0
+            } else {
+                comparisonBudget[a].execPerform = numToMoney(comparisonBudget[a].execPerform + "")
+            }
 
-           if(comparisonBudget[a].budgetAccountComparison == null){
-               comparisonBudget[a].budgetAccountComparison = 0
-           }else{
-               comparisonBudget[a].budgetAccountComparison = numToMoney(comparisonBudget[a].budgetAccountComparison+"")
-           }
-       }
-       setResult(resultComparisonBudget);
+            if (comparisonBudget[a].budgetAccountComparison == null) {
+                comparisonBudget[a].budgetAccountComparison = 0
+            } else {
+                comparisonBudget[a].budgetAccountComparison = numToMoney(comparisonBudget[a].budgetAccountComparison + "")
+            }
+        }
+        setResult(resultComparisonBudget);
     }
 
-    useEffect( () => {
+    useEffect(() => {
         comparisnBudgetResult(DetailbudgetList); // 3. 이부분이 실행
-       console.log(DetailbudgetList); //comparisonBudget 값이 업데이트 될때만 실행
-       },[DetailbudgetList]); //의존성 배열 , 첫번째 매개변수자리의 함수를 실행시킬 조건.  //2. comparisonBudget 의 값이 바뀌고
-                              
+        console.log(DetailbudgetList); //comparisonBudget 값이 업데이트 될때만 실행
+    }, [DetailbudgetList]); //의존성 배열 , 첫번째 매개변수자리의 함수를 실행시킬 조건.  //2. comparisonBudget 의 값이 바뀌고
 
-    const  numToMoney=(value: any)=>{ //10000
-        let length=value.length; //길이
-        let valueArray=value.split(""); //빈공간 ""을 기준으로 잘라서 배열에 넣음->모든숫자가 다 잘림 100-> 1/0/0
-        let strBuffer=[]; //빈배열
-        for(let i in valueArray){ //배열이 가지고 있는 인덱스만큼 가져오겠다
-            if((i - 3) % 3 == 0 && i != 0) strBuffer.unshift(","); //세글자마다 ',' 이붙음
-            strBuffer.unshift(value[length-1-i]); //배열 앞에 요소추가
+
+    const numToMoney = (value: any) => { //10000
+        let length = value.length; //길이
+        let valueArray = value.split(""); //빈공간 ""을 기준으로 잘라서 배열에 넣음->모든숫자가 다 잘림 100-> 1/0/0
+        let strBuffer = []; //빈배열
+        for (let i in valueArray) { //배열이 가지고 있는 인덱스만큼 가져오겠다
+            if ((i - 3) % 3 == 0 && i != 0) strBuffer.unshift(","); //세글자마다 ',' 이붙음
+            strBuffer.unshift(value[length - 1 - i]); //배열 앞에 요소추가
         }
-        value=strBuffer.join(""); //자른값이 붙어짐
+        value = strBuffer.join(""); //자른값이 붙어짐
         return value;
     }
 
@@ -365,7 +384,7 @@ const BudgetStatus = () => {
                                             inputProps={{ 'aria-label': 'search google maps' }}
                                             value={year}
                                         />
-                                        <IconButton type="button" sx={{ p: '10px' }} aria-label="search" onClick={onYearBtn}>
+                                        <IconButton type="button" sx={{ p: '10px' }} aria-label="search" onClick={yearListData}>
                                             <SearchIcon />
                                         </IconButton>
                                         <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
@@ -386,14 +405,14 @@ const BudgetStatus = () => {
                                                 }}
                                             >
                                                 <DataGrid
-                                                    rows={periodNoList}
+                                                    rows={periodBudgetList.periodNoList}
                                                     columns={YearColumns}
                                                     pageSize={5}
                                                     rowsPerPageOptions={[5]}
                                                     getRowId={(row) => row.accountPeriodNo}
                                                     onRowClick={clickYearData} //년도의 행 선택했을때 실행
                                                 />
-                                            <Button onClick={() => setYearModal(false)}>닫기</Button>
+                                                <Button onClick={() => setYearModal(false)}>닫기</Button>
 
                                             </Box>
                                         </div>
@@ -411,7 +430,7 @@ const BudgetStatus = () => {
                                             inputProps={{ 'aria-label': 'search google maps' }}
                                             value={workplaceName}
                                         />
-                                        <IconButton type="button" sx={{ p: '10px' }} aria-label="search" onClick={onWorkBtn}>
+                                        <IconButton type="button" sx={{ p: '10px' }} aria-label="search" onClick={workListData}>
                                             <SearchIcon />
                                         </IconButton>
                                         <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
@@ -431,12 +450,12 @@ const BudgetStatus = () => {
                                                 }}
                                             >
                                                 <DataGrid
-                                                    rows={workList}
+                                                    rows={workPlaceDeptCall}
                                                     columns={WorkplaceColumns}
                                                     pageSize={10}
                                                     rowsPerPageOptions={[10]}
                                                     getRowId={(row) => row.workplaceCode}
-                                                    onRowClick={clickWorkData} 
+                                                    onRowClick={clickWorkData}
                                                 />
                                                 <Button onClick={() => setWorkModal(false)}>닫기</Button>
                                             </Box>
@@ -472,12 +491,12 @@ const BudgetStatus = () => {
                                                 }}
                                             >
                                                 <DataGrid
-                                                    rows={deptList}
+                                                    rows={detailDeptCall}
                                                     columns={DeptColumns}
                                                     pageSize={10}
                                                     rowsPerPageOptions={[10]}
                                                     getRowId={(row) => row.deptCode}
-                                                    onRowClick={clickDeptData} 
+                                                    onRowClick={clickDeptData}
                                                 />
                                                 <Button onClick={() => setDeptModal(false)}>닫기</Button>
                                             </Box>
@@ -485,13 +504,13 @@ const BudgetStatus = () => {
                                     </Modal>
                                 </Grid>
                                 <Grid item>
-                                <Paper
-                                    id="dept"
-                                    component="form"
-                                    sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', width: 120 }}
-                                >
-                                        <Button 
-                                        sx={{ ml: 1, flex: 1 }} variant="contained" color="secondary" size="large" onClick={searchBudget}
+                                    <Paper
+                                        id="dept"
+                                        component="form"
+                                        sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', width: 120 }}
+                                    >
+                                        <Button
+                                            sx={{ ml: 1, flex: 1 }} variant="contained" color="secondary" size="large" onClick={searchBudget}
                                         >조회
                                         </Button>
                                     </Paper>
@@ -506,7 +525,7 @@ const BudgetStatus = () => {
 
                 {/* === 테이블 =========================================================================================================================================== */}
                 <Grid item sm={12}>
-                <MainCard>
+                    <MainCard>
                         <Box
                             sx={{
                                 height: 500,
@@ -537,12 +556,12 @@ const BudgetStatus = () => {
                         </Box>
                     </MainCard>
                 </Grid>
-                
 
-                
+
+
                 {/* === 상세테이블 =========================================================================================================================================== */}
                 <Grid item sm={12}>
-                <MainCard>
+                    <MainCard>
                         <Box
                             sx={{
                                 height: 500,
@@ -566,7 +585,7 @@ const BudgetStatus = () => {
                                 rows={result}
                                 columns={BudgetDetailcolumnDefs}
                                 getRowId={(row: any) => row.budgetDate}
-                                // onRowClick={}
+                            // onRowClick={}
                             />
                         </Box>
                     </MainCard>

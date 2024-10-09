@@ -75,23 +75,23 @@ export default slice.reducer;
 
 // ----------------------------------------------------------------------
 
-export function getPeriodList() {
-  return async () => {
-    try {
-      const response = await axios.get('http://localhost:9103/settlement/periodNoList');
-      console.log(response.data.periodNoList);
-      dispatch(slice.actions.getSearchDate(response.data.periodNoList));
-    } catch (error) {
-      dispatch(slice.actions.hasError(error));
-    }
-  };
-}
+// export function getPeriodList() {
+//   return async () => {
+//     try {
+//       const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_ACC_URL}/settlement/periodNoList`);
+//       console.log(response.data.periodNoList);
+//       dispatch(slice.actions.getSearchDate(response.data.periodNoList));
+//     } catch (error) {
+//       dispatch(slice.actions.hasError(error));
+//     }
+//   };
+// }
 
 
 export function getDeptList() {
   return async () => {
     try {
-      const response = await axios.get('http://localhost:9103/operate/deptlist');
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_ACC_URL}/operate/deptlist`);
       console.log(response.data);
       dispatch(slice.actions.getDeptListInit(response.data))
     }
@@ -104,7 +104,7 @@ export function getDeptList() {
 export function getDetailDeptList(params: any) {
   return async () => {
     try {
-      const response = await axios.get('http://localhost:9103/operate/detaildeptlist', { params });
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_ACC_URL}/operate/detaildeptlist`, { params });
       console.log(response.data)
       dispatch(slice.actions.getDetailDeptListInit(response.data.detailDeptList))
     }
@@ -115,13 +115,13 @@ export function getDetailDeptList(params: any) {
 }
 
 export async function getCurrentBudget(params: dataType) {
-  const url = 'http://localhost:9103/budget/currentbudget';
+  const url = `${process.env.NEXT_PUBLIC_BACKEND_ACC_URL}/budget/currentbudget`;
   const response = await axios.post(url,{params});
   console.log(response.data)
   return response;
 
     // try {
-    //   const response = await axios.get('http://localhost:9103/budget/currentbudget', { params });
+    //   const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_ACC_URL}/budget/currentbudget`, { params });
     //   console.log(response);
     //   dispatch(slice.actions.getCurrentBudgetInit(response.data))
     // }

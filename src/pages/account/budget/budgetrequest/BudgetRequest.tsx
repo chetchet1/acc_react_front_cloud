@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ReactElement } from 'react-markdown/lib/react-markdown';
 import { useDispatch, useSelector } from 'react-redux';
 import Layout from 'layout';
+import { useEffect } from 'react';
 
 // material-ui
 import MainCard from 'ui-component/cards/MainCard';
@@ -12,18 +13,39 @@ import { DataGrid } from '@mui/x-data-grid';
 import { useTheme } from '@mui/material/styles';
 import { Button, Grid, Paper, Divider, InputBase, IconButton, TextField, Box, Modal } from '@mui/material';
 
-import accountApi from 'api/accountApi';
+
 import { gridSpacing } from 'store/constant';
-import { getDeptList, getDetailDeptList, getPeriodList } from 'store/slices/budgetStatus';
+import { budgetActions } from 'store/redux-saga/reducer/budget/budgetReducer';
+
+
+
+
 
 const BudgetRequest = () => {
 
     const theme = useTheme();
     const dispatch = useDispatch()
 
-    const periodCall = useSelector((state: any) => state.budgetStatus.budgetDT);
-    const deptCall = useSelector((state: any) => state.budgetStatus.budgetWP);
-    const detailDeptCall = useSelector((state: any) => state.budgetStatus.budgetDP);
+    
+    //const deptCall = useSelector((state: any) => state.budgetStatus.budgetWP);
+    //const detailDeptCall = useSelector((state: any) => state.budgetStatus.budgetDP);
+    
+
+    // reducer와 saga를 이용한 useState값
+    //남도현이 했음 ㅋ
+    const periodBudgetList = useSelector((state : any) => state.budget.fixedBudgetList);
+    const workPlaceDeptCall = useSelector((state : any)=> state.budget.workPlaceListName)
+    const detailDeptCall = useSelector((state : any)=> state.budget.deptDetailCodeName);
+    const parentAccountList = useSelector((state : any)=> state.budget.accountCodeList);
+    const detailAccountList = useSelector((state : any) => state.budget.detailAccountList)
+
+    //남도현이 했음 ㅋ
+    //회계연도, 사업장명 데이터 값을 미리 부르기 위한 useEffect
+    useEffect(()=>{
+        dispatch(budgetActions.PeriodListRequest()),
+        dispatch(budgetActions.WorkPlaceRequest())
+      }, []);
+      
 
     const [year, setYear] = useState('');
     const [accountPeriodNo, setAccountPeriodNo] = useState('');
@@ -32,8 +54,8 @@ const BudgetRequest = () => {
     const [deptCode, setDeptCode] = useState('');
     const [deptName, setDeptName] = useState('');
     const [accountInnerCode, setAccountInnerCode] = useState('');
-    const [accountList, setAccountList] = useState([]);
-    const [detailAccountList, setDetailAccountList] = useState({});
+    //const [accountList, setAccountList] = useState([]);
+    // const [detailAccountList, setDetailAccountList] = useState({});
     
     // Modal
     const [yearOpen, yearSetOpen] = useState(false); //년도모달
@@ -54,19 +76,24 @@ const BudgetRequest = () => {
     const [elevenmonth, setElevenMonth] = useState('');
     const [twelvemonth, setTwelveMonth] = useState('');
 
-    // 날짜 모달 데이터 조회
-    const yearListData = () => { //월계표조회 누르면 실행
-        yearSetOpen(true); //년도 모달을 띄움
-        dispatch(getPeriodList() as any) // 데이터 호출
-    };
+    //리덕스 사가를 이용한 useSelector
 
-    // 날짜 모달 데이터 row 클릭 이벤트
+
+    // 날짜 모달 데이터 불러오기
+    const yearListData = () => { //월계표조회 누르면 실행
+        console.log("yearListData")
+        yearSetOpen(true); //년도 모달을 띄움
+        //dispatch(budgetActions.FiexdPeriodList);
+        //dispatch(getPeriodList() as any) // 데이터 호출을 안되네 ?
+    }
+
+    // 날짜 모달 데이터 (row) 클릭 이벤트
     const searchYearData = (e: any) => {
-        const yearset = e.row.periodStartDate.substring(0, 4);
-        console.log('[searchTearData]]', e.row);
+        const yearset = e.row.periodStartDate.substring(0, 4); //클릭한 해당연도 데이터 값을 서브스트링으로 끊어서 가져옴.
+        console.log('[searchYearData]]', e.row);
         yearSetOpen(false);
         setYear(yearset);
-        setAccountPeriodNo(e.row.accountPeriodNo);
+        setAccountPeriodNo(e.row.accountPeriodNo); //2
         console.log('[accountPeriodNo]', accountPeriodNo)
     }
 
@@ -75,53 +102,65 @@ const BudgetRequest = () => {
         workSetOpen(true);
         setDeptCode(""); //부서코드 초기화
         setDeptName(""); //부서 이름 초기화
-        dispatch(getDeptList() as any) //데이터 호출
+        console.log("WorkCompany")
+        //dispatch(budgetActions.WorkCompanyList('')) //데이터 호출
     }
 
     // 사업장 모달 데이터 row 클릭 이벤트
     const searchDepartment = (e: any) => { //사업장코드 행 선택했을때
         workSetOpen(false); //사업장코드 모달 닫음
         console.log('[searchDepartment]', e);
-        setWorkplaceName(e.row.workplaceName); //사업장이름 셋팅
+        setWorkplaceName(e.row.workplaceName); //사업장이름 셋팅 그리드에 세팅하려고 세팅하는듯함
+        console.log("usestate workplaceCode",workplaceCode)
         setWorkplaceCode(e.row.workplaceCode); //사업장코드 셋팅
         console.log('[workplaceName]', workplaceName);
         console.log('[workplaceCode]', workplaceCode);
         deptSetOpen(true); //부서 모달띄우기
-        dispatch(getDetailDeptList(e.row) as any);
+        dispatch(budgetActions.GetDetailDeptListRequest((e.row)as any)) // 사업장 모달창에서 Row를 클릭시 액션함수 실행
+        
     }
 
     // 부서 모달 
+    //남도현이 했음 ㅋㅋ
     const setDepartment = (e: any) => {
-        deptSetOpen(false);
-        console.log('[setDepartment]', e)
-        setDeptCode(e.row.deptCode);
-        setDeptName(e.row.deptName);
+        deptSetOpen(false); // 부서모달창 off
+        console.log('[setDepartment]', e) // e는 event로 해당 ROW 클릭한 값이 매개변수를 통해 받을 수 있다.
+        setDeptCode(e.row.deptCode); // 복합키 pk인듯?
+        setDeptName(e.row.deptName); // 복합키 pk인듯? 이거는 sql로 확인해보셔용
         console.log('e.row.deptCode',e.row.deptCode)
         console.log('[accountPeriodNo]', accountPeriodNo)
         if (accountPeriodNo === '' || workplaceCode === '' || e.row.deptCode === '') {
             alert("값을 모두 입력해주세요");
         } else {
-            callParentAccountList();
+            //callParentAccountList();
+            dispatch(budgetActions.callParentAccountListRequest())
         }
     }
 
     // 부서명 row 클릭 이벤트
-    const callParentAccountList = async () => {
-        const res = await accountApi.get('/operate/parentaccountlist');
-        console.log('[res]', res.data);
-        setAccountList(res.data.accountCodeList);
-    };
+    // const callParentAccountList = async () => {
+    //     const res = await accountApi.get('/operate/parentaccountlist');
+    //     console.log('[res]', res.data);
+    //     setAccountList(res.data.accountCodeList);
+    // };
 
-    // 계정 과목 row 클릭 이벤트
-    const clickAccountRow = async (params: any) => {
-        console.log(params.row.accountInnerCode)
-        const response = await accountApi.get('/operate/detailaccountlist', {params: {code: params.row.accountInnerCode}});
-        console.log('[detailAccountList]', response.data)
-        setDetailAccountList(response.data)
+    //계정 과목 row 클릭
+    const clickAccountRow = (e : any) =>{
+        console.log("이벤트 발생", e.row)
+        dispatch(budgetActions.DetailAccountListRequest((e.row) as any))
     }
+
+    //계정 과목 row 클릭 이벤트
+    // const clickAccountRow = async (params: any) => {
+    //     console.log(params.row.accountInnerCode)
+    //     const response = await accountApi.get('/operate/detailaccountlist', {params: {code: params.row.accountInnerCode}});
+    //     console.log('[detailAccountList]', response.data)
+    //     setDetailAccountList(response.data)
+    // }
 
     // 계정 상세 row 클릭 이벤트
     const clickAccountDetailRow = (e: any)=>{
+        console.log("이너코드찾고싶어",e)
         setAccountInnerCode(e.row.accountInnerCode) // 계정상세의 accountInnerCode 세팅
     }
 
@@ -180,6 +219,7 @@ const BudgetRequest = () => {
     ];
 
     // 월별 예산 입력
+    //e.target.value가 해달 텍스트값 불러오는거 useState로 setting하는 방법임.
     const insertMonthBudget1 = (e: any) => {
         setOneMonth(e.target.value);
     };
@@ -248,11 +288,14 @@ const BudgetRequest = () => {
             m11Budget: elevenmonth,
             m12Budget: twelvemonth
         }
+        //Object.values는 객체의 키와 값을 배열로 반환함.
+        //budgetEntity 객체의 모든 값들을 배열에 담아 values에 할당.
+        //some() 배열의 요소가 조건을 충족하는지 여부를 확인함.
         if (Object.values(budgetEntity).some((datavalue) => datavalue == '')) {
                 alert('월별 신청값을 입력해 주십시오')
         } else {
-            console.log(budgetEntity);
-            await accountApi.post('/budget/budgetlist', budgetEntity)
+            console.log(budgetEntity,"버젯엔티티");
+            dispatch(budgetActions.BudgetRegisterRequest(budgetEntity as any))
             onMonthReset();
             onMenuReset();
             alert('예산신청이 완료되었습니다.')
@@ -289,7 +332,7 @@ const BudgetRequest = () => {
                 <Grid item sm={12}>
                     <MainCard
                         content={false}
-                        title="개정과목선택"
+                        title="계정과목선택"
                         sx={{
                             '&MuiCard-root': { color: theme.palette.text.primary }
                         }}
@@ -312,7 +355,8 @@ const BudgetRequest = () => {
                                         </IconButton>
                                         <Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
                                     </Paper>
-                                    <Modal open={yearOpen} >
+                                    {/* yearOpen useState로 설정해둠 */}
+                                    <Modal open={yearOpen} > 
                                         <div
                                             style={{
                                                 height: 400,
@@ -328,7 +372,7 @@ const BudgetRequest = () => {
                                                 }}
                                             >
                                                 <DataGrid
-                                                    rows={periodCall}
+                                                    rows={periodBudgetList.periodNoList}
                                                     columns={yearColumns}
                                                     pageSize={5}
                                                     rowsPerPageOptions={[5]}
@@ -373,11 +417,11 @@ const BudgetRequest = () => {
                                                 }}
                                             >
                                                 <DataGrid
-                                                    rows={deptCall}
+                                                    rows={workPlaceDeptCall}
                                                     columns={workColumns}
                                                     pageSize={10}
                                                     rowsPerPageOptions={[10]}
-                                                    getRowId={(row) => row.workplaceCode}
+                                                    getRowId={(row: any) => row.workplaceCode + row.deptCode}
                                                     onRowClick={searchDepartment} 
                                                 />
                                                 <Button onClick={() => workSetOpen(false)}>닫기</Button>
@@ -418,7 +462,7 @@ const BudgetRequest = () => {
                                                     columns={deptColumns}
                                                     pageSize={10}
                                                     rowsPerPageOptions={[10]}
-                                                    getRowId={(row) => row.deptCode}
+                                                    getRowId={(row) => row.deptCode}                                                    
                                                     onRowClick={setDepartment}
                                                 />
                                                 <Button onClick={() => deptSetOpen(false)}>닫기</Button>
@@ -451,7 +495,7 @@ const BudgetRequest = () => {
                             }}
                         >
                             <DataGrid
-                                rows={accountList}
+                                rows={parentAccountList}
                                 columns={accountColumns}
                                 getRowId={(row: any) => row.accountInnerCode}
                                 onRowClick={clickAccountRow}

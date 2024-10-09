@@ -32,7 +32,7 @@ const TotalTrialBalanceMenu = () => {
     // 회계기수조회 버튼 함수 수정 전🎈
     const periodListData = () => {
         setOpen(true);
-        axios.get('http://localhost:9103/settlement/periodNoList')
+        axios.get(`${process.env.NEXT_PUBLIC_BACKEND_ACC_URL}/settlement/periodNoList`)
             .then((res:any) => {
                 console.log("res.data???", res.data);
                 setList(res.data.periodNoList);
@@ -46,7 +46,7 @@ const TotalTrialBalanceMenu = () => {
     const searchData = (e: any) => {
         setOpen(false);
         console.log(e); // 날짜 객체 정보
-        axios.get('http://localhost:9103/settlement/totaltrialbalance'
+        axios.get(`${process.env.NEXT_PUBLIC_BACKEND_ACC_URL}/settlement/totaltrialbalance`
             , {
                 params: { accountPeriodNo: e.id, callResult: callResult }
             }
@@ -62,7 +62,7 @@ const TotalTrialBalanceMenu = () => {
 
     const earlyStatement = () => { // 결산 버튼
         console.log("----- periodNo ------", periodNo);
-        axios.get('http://localhost:9103/settlement/earlyStatements'
+        axios.get(`${process.env.NEXT_PUBLIC_BACKEND_ACC_URL}/settlement/earlyStatements`
         , {
             params: { 
                 accountPeriodNo: periodNo, callResult: callResult }

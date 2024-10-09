@@ -60,7 +60,7 @@ export const { requestSlipDate, requestSlipDataSuccess, requestSlipDateError } =
 // ----------------------------------------------------------------------
 
 export async function getSlipDate(params: slipSearchParam) {
-  const url = 'http://localhost:9103/posting/rangedsliplist';
+  const url = `${process.env.NEXT_PUBLIC_BACKEND_ACC_URL}/posting/rangedsliplist`;
   const response = await axios.get(url, {
     params: params
   });
@@ -72,7 +72,7 @@ export function selectJournalStart(params: slipParam) {
   return async () => {
     try {
       console.log(params);
-      const response = await axios.get('http://localhost:9103/posting/singlejournallist', { params });
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_ACC_URL}/posting/singlejournallist`, { params });
       console.log(response.data);
       dispatch(slice.actions.getJounalData(response.data));
     } catch (error) {
@@ -85,7 +85,7 @@ export function selectJournalDetail(params: journalParam) {
   return async () => {
     try {
       console.log(params);
-      const response = await axios.get('http://localhost:9103/posting/journaldetaillist', { params });
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_ACC_URL}/posting/journaldetaillist`, { params });
       console.log(response.data);
       dispatch(slice.actions.getJounalDetialData(response.data));
     } catch (error) {

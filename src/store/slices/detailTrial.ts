@@ -67,9 +67,9 @@ export const { requestSearchDate, requestSearchDateSuccess, requestSearchDateErr
 // ----------------------------------------------------------------------
 
 export async function getDetailDate() {
-  const url = 'http://localhost:9103/settlement/periodNoList';
+  const url = `${process.env.NEXT_PUBLIC_BACKEND_ACC_URL}/settlement/periodNoList`;
   const response = await axios.get(url);
-  // const response = await axios.get('http://localhost:9103/settlement/periodNoList');
+  // const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_ACC_URL}/settlement/periodNoList`);
   console.log('리듀서', response.data);
   return response;
 }
@@ -77,7 +77,7 @@ export async function getDetailDate() {
 export function getSelectDate() {
   return async () => {
     try {
-      const response = await axios.get('http://localhost:9103/settlement/monthData');
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_ACC_URL}/settlement/monthData`);
       console.log(response.data.monthList);
       dispatch(slice.actions.getChoiceDate(response.data));
     } catch (error) {
@@ -90,7 +90,7 @@ export function getTrialDate(params: dateParam) {
   return async () => {
     try {
       console.log(params);
-      const response = await axios.get('http://localhost:9103/settlement/detailtrialbalance', { params });
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_ACC_URL}/settlement/detailtrialbalance`, { params });
       console.log(response.data.detailTrialBalanceList);
       dispatch(slice.actions.getTrialDate(response.data));
     } catch (error) {

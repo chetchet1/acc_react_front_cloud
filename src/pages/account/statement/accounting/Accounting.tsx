@@ -26,7 +26,7 @@ const Accounting = () => {
 
   const periodListData = () => {
     setOpen(true);
-    axios.get('http://localhost:9103/settlement/periodNoList')
+    axios.get(`${process.env.NEXT_PUBLIC_BACKEND_ACC_URL}/settlement/periodNoList`)
       .then((res) => {
         console.log(res.data.periodNoList),
           setList(res.data.periodNoList)
@@ -37,7 +37,7 @@ const Accounting = () => {
     setOpen(false);
     console.log(e.id);
     console.log(e.row.accountPeriodNo)
-    axios.get('http://localhost:9103/settlement/accounting',
+    axios.get(`${process.env.NEXT_PUBLIC_BACKEND_ACC_URL}/settlement/accounting`,
       {
         params: {
           accountPeriodNo: e.row.accountPeriodNo

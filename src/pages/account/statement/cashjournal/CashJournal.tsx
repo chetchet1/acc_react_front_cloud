@@ -40,7 +40,7 @@ const CashJournal = () => {
     setData(res.data.cashJournalList);
 
     // axios
-    //   .get('http://localhost:9103/posting/cashjournal', {
+    //   .get(`${process.env.NEXT_PUBLIC_BACKEND_ACC_URL}/posting/cashjournal`, {
     //     params: params
     //   })
     //   .then((res) => {

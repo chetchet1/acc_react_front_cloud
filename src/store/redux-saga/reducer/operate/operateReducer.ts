@@ -31,14 +31,14 @@ const operateSlice = createSlice({
         },
         FixedAssetCodeSuccess(state,action){
             console.warn('state 업데이트', action.payload);
-            state.fixedAssetCode = action.payload;
+            state.fixedAssetCode = action.payload; //이 payload에 데이터 값이 들어오는 듯함. state는 타입.
             console.log("state.fixedAssetCode?????????????", state.fixedAssetCode);
         },
         FixedAssetCodeFailure(state){
             console.warn('error');
         },
         FixedAssetListRequest(state){
-            console.warn('고정자산목록 요청중');
+            console.warn('고정자산목록 요청중',state);
         },
         FixedAssetListSuccess(state, action){
             console.warn('state 업데이트', action.payload);

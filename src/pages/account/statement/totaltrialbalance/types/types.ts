@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 export interface ColumnPropsTotalTrialBalance {
     lev: number;
     accountName: string;

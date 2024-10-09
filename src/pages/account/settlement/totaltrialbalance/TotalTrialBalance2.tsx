@@ -77,19 +77,23 @@ const TotalTrialBalance2 = () => {
     console.log("----- selectedCell -----", selectedCell)
     
     if (selectedCell === "당좌자산") {
-      Swal.fire({
-        icon: 'error',
-        title: '수정 불가능',
-        text: '결산 값이 일치하지 않습니다.',
-        showConfirmButton: true
+      setTimeout(() => {
+        Swal.fire({
+          icon: 'error',
+          title: '수정 불가능',
+          text: '결산 값이 일치하지 않습니다.',
+          showConfirmButton: true
       });
+    }, 2000)
     } else {
-      Swal.fire({
-        icon: 'success',
-        title: '수정 완료',
-        text: '결산 값이 일치합니다.',
-        showConfirmButton: true
-      });
+      setTimeout(() => {
+        Swal.fire({
+          icon: 'success',
+          title: '수정 완료',
+          text: '결산 값이 일치합니다.',
+          showConfirmButton: true
+        });
+    }, 2000)
     }
   };
 

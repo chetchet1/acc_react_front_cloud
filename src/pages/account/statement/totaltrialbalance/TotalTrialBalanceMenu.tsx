@@ -29,7 +29,7 @@ const TotalTrialBalanceMenu = () => {
     // 회계기수조회 버튼 함수 수정 전🎈
     const periodListData = () => {
         setOpen(true);
-        axios.get('http://localhost:9103/settlement/periodNoList')
+        axios.get(`${process.env.NEXT_PUBLIC_BACKEND_ACC_URL}/settlement/periodNoList`)
             .then((res:any) => {
                 console.log("res.data???", res.data);
                 setList(res.data.periodNoList);
@@ -38,35 +38,29 @@ const TotalTrialBalanceMenu = () => {
             )
     };
 
-    // (78) 회계기수조회 버튼 함수 수정
-     
-
-    // 회계기수를 선택하면 이를 바탕으로 데이터를 찾아옴
     const searchData = (e: any) => {
         setOpen(false);
-        console.log(e); // 날짜 객체 정보
-        axios.get('http://localhost:9103/settlement/totaltrialbalance'
+        console.log(e);
+        axios.get(`${process.env.NEXT_PUBLIC_BACKEND_ACC_URL}/settlement/totaltrialbalance`
             , {
                 params: { accountPeriodNo: e.id, callResult: callResult }
             }
         )
             .then((res) => {
                 // console.log(res.data.totaltrialList.totalTrialBalance);
-                console.log("----- res.data -----", res.data);
+                console.log("res.data", res.data);
                 // setTotaltrialListData(res.data.totaltrialList.totalTrialBalance);
             }
             )
-            console.log("callResult ?", callResult); // 매개변수로 넘어갈 callResult?
     };
 
     const earlyStatement = () => { // 결산 버튼
         console.log(periodNo);
-        axios.get('http://localhost:9103/settlement/earlyStatements'
+        axios.get(`${process.env.NEXT_PUBLIC_BACKEND_ACC_URL}/settlement/earlyStatements`
         , {
             params: { 
                 accountPeriodNo: 4, callResult: callResult }
         })
-        console.log("callResult ?", callResult); // 매개변수로 넘어갈 callResult?
         alert('결산 실행')
     };
 

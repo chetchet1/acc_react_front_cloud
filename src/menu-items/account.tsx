@@ -135,6 +135,12 @@ const account: NavItemType = {
       icon: icons.IconBasket,
       children: [
         {
+          id: 'logiBudgetPage',
+          title: <FormattedMessage id="logiBudgetPage" />,
+          type: 'item',
+          url: '/account/budget/mrp/Mrpdialog'
+        },
+        {
           id: 'budgetRequestPage',
           title: <FormattedMessage id="budgetRequestPage" />,
           type: 'item',
@@ -146,12 +152,12 @@ const account: NavItemType = {
           type: 'item',
           url: '/account/budget/budgetformulation/BudgetFormulation'
         },
-        {
-          id: 'budgetStatusPage',
-          title: <FormattedMessage id="budgetStatusPage" />,
-          type: 'item',
-          url: '/account/budget/budgetstatus/BudgetStatus'
-        }
+        // {
+        //   id: 'budgetStatusPage',
+        //   title: <FormattedMessage id="budgetStatusPage" />,
+        //   type: 'item',
+        //   url: '/account/budget/budgetstatus/BudgetStatus'
+        // }
       ]
     },
     {

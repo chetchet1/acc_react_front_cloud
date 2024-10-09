@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import React, { useState, useRef, useEffect } from 'react';
 import { Grid, Button, TextField, Autocomplete } from '@mui/material';
 import LayersTwoToneIcon from '@mui/icons-material/LayersTwoTone';
