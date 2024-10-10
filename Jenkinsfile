@@ -25,11 +25,11 @@ pipeline {
 
                         // .env 파일의 API URL 업데이트
                         bat """
-                        powershell -Command "(Get-Content 'E:/docker_dev/acc_react_front_cloud/.env') -replace 'NEXT_PUBLIC_BACKEND_ACC_URL=.*', 'NEXT_PUBLIC_BACKEND_ACC_URL=http://$acc_service_url:9103' | Set-Content 'E:/docker_dev/acc_react_front_cloud/.env'"
+                        powershell -Command "(Get-Content 'E:/docker_Logi/acc_react_front_cloud/.env') -replace 'NEXT_PUBLIC_BACKEND_ACC_URL=.*', 'NEXT_PUBLIC_BACKEND_ACC_URL=http://$acc_service_url:9103' | Set-Content 'E:/docker_Logi/acc_react_front_cloud/.env'"
                         """
 
                         // .env 파일 내용 확인
-                        def env_content = powershell(script: "Get-Content 'E:/docker_dev/acc_react_front_cloud/.env'", returnStdout: true).trim()
+                        def env_content = powershell(script: "Get-Content 'E:/docker_Logi/acc_react_front_cloud/.env'", returnStdout: true).trim()
                         echo "Updated .env content:\n${env_content}"
                     }
                 }
