@@ -39,7 +39,7 @@ pipeline {
         // 회계 프론트엔드 Docker 이미지 빌드 및 ECR 푸시
         stage('Build and Push Accounting Frontend Docker Image') {
             steps {
-                dir('E:/docker_dev/acc_react_front_cloud') { 
+                dir('E:/docker_Logi/acc_react_front_cloud') { 
                     script {
                         bat """
                         docker build -t ${ACC_IMAGE_NAME}:latest .
