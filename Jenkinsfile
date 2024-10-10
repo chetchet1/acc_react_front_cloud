@@ -21,7 +21,7 @@ pipeline {
                 script {
                     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-key']]) {
                         // 회계 백엔드 서비스의 URL 가져오기
-                        def acc_service_url = powershell(script: "kubectl get service acc-backend-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'", returnStdout: true).trim()
+                        def acc_service_url = powershell(script: "kubectl get service acc-back-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'", returnStdout: true).trim()
 
                         // .env 파일의 API URL 업데이트
                         bat """
